@@ -6,15 +6,25 @@
 </p>
 <p>
     I take on pro-bono work, at-cost work, and commercial work - all at different rates - but I won't cost more than
-    £200/day. Which, as a communist, still seems like too much, but I've been told that people won't take me seriously
+    £200/day. As a communist, this still seems like too much, but I've been told that people won't take me seriously
     if I go any lower.
 </p>
 <ul>
     <li>Email: joaquimds@gmail.com</li>
     <li>Twitter: @joaquimds</li>
 </ul>
+<p>
+    This site is a weird, probably useless, implementation of a static site generator. I knocked it up on 1st August
+    2018, for fun. Pros: the data is stored in a database, which I think is a better way to store data than in static
+    files. Cons: all the cons of having to set up a database. Also, as with all SSGs, it only works if the source
+    files follow a specific pattern. The code can be found on GitHub.
+</p>
+<% if (message) { %>
 <p>Current message for Joaquim:</p>
-<p><%= message %></p>
+<a href="/messages/<%= message.id %>.html">
+    <%= message.name %>: <%= message.body %>
+</a>
+<% } %>
 <p>
     You can update this message using the form below. Previous messages can be found <a href="/messages">here</a>.
 </p>

@@ -3,7 +3,7 @@ const sequelize = require('../services/sequelize')
 
 const Message = sequelize.define('message', {
   name: Sequelize.STRING,
-  message: {
+  body: {
     type: Sequelize.STRING,
     unique: true
   }

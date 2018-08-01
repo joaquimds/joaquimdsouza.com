@@ -1,0 +1,9 @@
+<ul>
+    <% messages.forEach(message => { %>
+    <li>
+        <a href="/messages/<%= message.id %>.html">
+            <%= message.name %>: <%= message.body %>
+        </a>
+    </li>
+    <% }); %>
+</ul>

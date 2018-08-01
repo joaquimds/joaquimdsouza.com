@@ -6,7 +6,7 @@
     "lint": "standard \"**/*.js\" --fix"
   },
   "dependencies": {
-    "ejs": "~2.5.7",
+    "ejs": "^2.6.1",
     "express": "~4.16.0",
     "http-errors": "~1.6.2"
   },

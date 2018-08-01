@@ -8,7 +8,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, '..', 'client', 'build')))
 
-app.use('/api', require('./api'))
+app.use('/api', require('./routes'))
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
