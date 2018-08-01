@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "start": "node ./bin/www",
+    "dev": "nodemon --watch client --watch server --ext js,scss,ejs ./bin/www",
     "lint": "standard \"**/*.js\" --fix"
   },
   "dependencies": {
@@ -15,11 +16,13 @@
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "node-sass": "^4.9.2",
+    "normalize-scss": "^7.0.1",
     "pg": "^7.4.3",
     "sequelize": "^4.38.0",
     "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
+    "nodemon": "^1.18.3",
     "standard": "^11.0.1"
   }
 }

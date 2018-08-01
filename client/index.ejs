@@ -1,9 +1,22 @@
-<h1>Hi</h1>
-<p>
-    I am a full-stack web developer. I was the tech lead on School Cuts, among other things, when I worked for
-    Outlandish co-operative. Before that, I was taught how to write good back-end code by Daniel of Twickets, and good
-    front-end code by Davy McGeorge.
-</p>
+<div class="header">
+    <div class="header__image">
+        <img src="/images/me.jpg">
+    </div>
+    <div>
+        <h1>Hi</h1>
+        <p>
+            I'm a full-stack web developer. I was the tech lead on <a href="https://schoolcuts.org.uk">School Cuts</a>
+            (among other things) when I worked for <a href="https://outlandish.com">Outlandish co-operative</a>, and
+            most of my professional development occurred there.
+        </p>
+        <p>
+            Before that, I was taught how to write good back-end code by Daniel of
+            <a href="https://twickets.co.uk">Twickets</a>, and good front-end code by
+            <a href="http://davymacca.com/">Davy McGeorge</a>.
+        </p>
+    </div>
+</div>
+
 <p>
     I take on pro-bono work, at-cost work, and commercial work - all at different rates - but I won't cost more than
     £200/day. As a communist, this still seems like too much, but I've been told that people won't take me seriously
@@ -15,8 +28,15 @@
 </ul>
 <p>
     This site is a weird, probably useless, implementation of a static site generator. I knocked it up on 1st August
-    2018, for fun. Pros: the data is stored in a database, which I think is a better way to store data than in static
-    files. Cons: all the cons of having to set up a database. Also, as with all SSGs, it only works if the source
+    2018 for fun. When you submit the form below, the whole website is recompiled into a series of static HTML, JS and
+    CSS files.
+</p>
+<p>
+    Pros: the data is stored in a database, which I think is a better way to store data than in static
+    files.
+</p>
+<p>
+    Cons: all the cons of having to set up a database. Also, as with all SSGs, it only works if the source
     files follow a specific pattern. The code can be found on GitHub.
 </p>
 <% if (message) { %>

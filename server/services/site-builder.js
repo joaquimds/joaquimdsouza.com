@@ -11,81 +11,115 @@ let _layout
 
 const siteBuilder = {
   build: async () => {
-    const messages = await Message.findAll()
+    const messages = await Message.findAll({ order: [ [ 'id', 'DESC' ] ] })
     const data = {messages, message: messages[0]}
 
-    const clientDir = path.join(__dirname, '..', '..', 'client')
-    const src = path.join(clientDir, 'src')
-    const dest = path.join(clientDir, 'build')
+    const rootDir = path.join(__dirname, '..', '..')
+    const src = path.join(rootDir, 'client')
+    const dest = path.join(rootDir, 'build')
 
     _layout = await readFile(path.join(src, '_layout.ejs'))
 
+    console.log('Cleaning', dest)
     await cleanDir(dest)
 
-    await buildJs(src, '_global.js', dest, 'global.js')
-    await buildScss(src, '_global.scss', dest, 'global.css')
-    await buildDir(clientDir, 'src', dest, data)
+    await buildDir(src, dest, data)
   }
 }
 
 async function cleanDir (dir) {
-  console.log('Cleaning', dir)
-  const files = await readDir(dir)
+  let files
+  try {
+    files = await readDir(dir)
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return
+    }
+    throw e
+  }
+
   const toRemove = files.filter(file => file !== '.gitkeep')
   for (const file of toRemove) {
     const filePath = path.join(dir, file)
     const isDirectory = await isDir(filePath)
     if (isDirectory) {
       await cleanDir(filePath)
-      await deleteDir(filePath)
       continue
     }
     await deleteFile(filePath)
   }
+
+  await deleteDir(dir)
 }
 
-async function buildDir (parentPath, dirName, dest, data) {
-  const srcPath = path.join(parentPath, dirName)
-  console.log('Building', srcPath)
+async function buildDir (rootDir, destDir, data) {
+  console.log(`Building ${rootDir} => ${destDir}`)
 
-  const files = await readDir(srcPath)
-  for (const file of files) {
-    const isDirectory = await isDir(path.join(srcPath, file))
-    const isIterator = isDirectory && file === '_each'
+  await makeDir(destDir)
+
+  const files = await readDir(rootDir)
+  for (const filename of files) {
+    const srcPath = path.join(rootDir, filename)
+    const destPath = getDestPath(destDir, filename)
+    const isDirectory = await isDir(srcPath)
     switch (true) {
-      case isIterator:
-        const items = data[dirName]
+      case isDirectory:
+        await buildDir(srcPath, destPath, data)
+        break
+      case filename.indexOf('_each') === 0:
+        const parentDirName = path.basename(rootDir)
+        const items = data[parentDirName]
         for (const item of items) {
-          await buildDir(srcPath, file, dest, item)
+          await buildEjs(srcPath, destPath, item)
         }
         break
-      case isDirectory:
-        const newDest = path.join(dest, file)
-        await makeDir(newDest)
-        await buildDir(srcPath, file, newDest, data)
-        break
-      case file.indexOf('_') === 0:
+      case filename.indexOf('_') === 0:
         // Skip files that start with '_'
         break
-      case file.indexOf('.js') > -1:
-        await buildJs(srcPath, file, dest)
+      case filename.indexOf('.js') > -1:
+        await buildJs(srcPath, destPath)
         break
-      case file.indexOf('.scss') > -1:
-        await buildScss(srcPath, file, dest)
+      case filename.indexOf('.scss') > -1:
+        await buildScss(srcPath, destPath)
         break
-      case file.indexOf('.ejs') > -1:
-        await buildEjs(srcPath, file, dest, data)
+      case filename.indexOf('.ejs') > -1:
+        await buildEjs(srcPath, destPath, data)
         break
       default:
-        await copyFile(srcPath, path.join(dest, file))
+        await copyFile(srcPath, destPath)
     }
   }
 }
 
-async function buildJs (srcDir, filename, destDir, destFilename) {
-  const expandedJs = await browserifyJs(path.join(srcDir, filename))
+function getDestPath (dir, filename) {
+  // remove iterator marker
+  if (filename.indexOf('_each.') === 0) {
+    filename = filename.substring(6)
+  }
+
+  const filenameParts = filename.split('.')
+
+  if (filenameParts.length > 1) {
+    const extension = filenameParts.pop()
+    switch (extension) {
+      case 'scss':
+        filename = filenameParts.join('.') + '.css'
+        break;
+      case 'ejs':
+        filename = filenameParts.join('.') + '.html'
+        break;
+    }
+  }
+
+  return path.join(dir, filename)
+}
+
+async function buildJs (src, dest) {
+  console.log(`Building ${src} => ${dest}`)
+
+  const expandedJs = await browserifyJs(src)
   const transpiledJs = babel.transform(expandedJs, {presets: ['babel-preset-env']})
-  await writeFile(path.join(destDir, destFilename || filename), transpiledJs.code)
+  await writeFile(dest, transpiledJs.code)
 }
 
 function browserifyJs (src) {
@@ -108,9 +142,11 @@ function browserifyJs (src) {
   })
 }
 
-async function buildScss (srcDir, filename, destDir, destFilename) {
-  const scss = await compileScss(path.join(srcDir, filename))
-  await writeFile(path.join(destDir, destFilename || filename.split('.scss')[0] + '.css'), scss)
+async function buildScss (src, dest) {
+  console.log(`Building ${src} => ${dest}`)
+
+  const scss = await compileScss(src)
+  await writeFile(dest, scss)
 }
 
 function compileScss (file) {
@@ -121,21 +157,21 @@ function compileScss (file) {
       if (err) {
         return reject(err)
       }
-      resolve(result)
+      resolve(result.css.toString())
     })
   })
 }
 
-async function buildEjs (srcDir, filename, destDir, data) {
-  const template = await readFile(path.join(srcDir, filename))
+async function buildEjs (src, dest, data) {
+  console.log(`Building ${src} => ${dest}`)
+
+  const template = await readFile(src)
   const page = ejs.render(template, data, {})
   const html = ejs.render(_layout, {page}, {})
 
-  const destFilename = replaceVariablesInFilename(filename, data)
+  const expandedDest = replaceVariablesInFilename(dest, data)
 
-  const dest = path.join(destDir, destFilename.split('.ejs')[0] + '.html')
-
-  await writeFile(dest, html)
+  await writeFile(expandedDest, html)
 }
 
 function replaceVariablesInFilename (filename, data) {

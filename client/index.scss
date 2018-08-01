@@ -1,0 +1,15 @@
+.header {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+}
+
+.header__image {
+  margin-right: 1rem;
+  width: 500px;
+
+  img {
+    border-radius: 100%;
+    width: 100%;
+  }
+}

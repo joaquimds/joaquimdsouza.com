@@ -1,0 +1,25 @@
+@import "../node_modules/normalize-scss/fork-versions/default/normalize";
+
+body {
+  background-color: #eee;
+  font-family: sans-serif;
+  line-height: 1.5rem;
+  padding: 1rem;
+}
+
+a {
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+
+  &:hover {
+    color: #555;
+  }
+}
+
+.container {
+  background-color: white;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+}

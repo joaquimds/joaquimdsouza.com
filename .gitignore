@@ -1,5 +1,4 @@
-client/build/*
-!client/build/.gitkeep
+build
 
 node_modules/
 
