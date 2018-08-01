@@ -28,8 +28,14 @@
 <p>
     You can update this message using the form below. Previous messages can be found <a href="/messages">here</a>.
 </p>
-<form onsubmit="commit()">
-    <label for="message">Message</label>
-    <input id="message" type="text">
+<form id="message-form">
+    <div>
+        <label for="name">Name</label>
+        <input id="name" type="text" maxlength="64">
+    </div>
+    <div>
+        <label for="message">Message</label>
+        <input id="message" type="text" maxlength="256">
+    </div>
     <button type="submit">Commit</button>
 </form>

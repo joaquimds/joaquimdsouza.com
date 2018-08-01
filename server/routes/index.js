@@ -4,15 +4,15 @@ const Message = require('../models/message')
 const siteBuilder = require('../services/site-builder')
 
 router.post('/commit', async (req, res, next) => {
-  const name = req.get('name')
-  const message = req.get('message')
+  const name = req.body.name
+  const message = req.body.message
 
   if (!name || !message) {
     return res.sendStatus(400)
   }
 
   try {
-    await Message.create({name, message})
+    await Message.create({name: name.substring(0, 64), body: message.substring(0, 256)})
   } catch (e) {
     console.log('Error', e.message)
     return res.sendStatus(400)
