@@ -1,0 +1,8 @@
+client/build/*
+!client/build/.gitkeep
+
+node_modules/
+
+.idea
+
+.env

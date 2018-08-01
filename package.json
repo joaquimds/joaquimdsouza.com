@@ -1,0 +1,19 @@
+{
+  "name": "joaquimdsouza.com",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node ./bin/www",
+    "lint": "standard \"**/*.js\" --fix"
+  },
+  "dependencies": {
+    "ejs": "~2.5.7",
+    "express": "~4.16.0",
+    "http-errors": "~1.6.2"
+  },
+  "devDependencies": {
+    "dotenv": "^6.0.0",
+    "pg": "^7.4.3",
+    "sequelize": "^4.38.0",
+    "standard": "^11.0.1"
+  }
+}
