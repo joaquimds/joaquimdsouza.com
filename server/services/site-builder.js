@@ -55,6 +55,33 @@ async function cleanDir (dir) {
   console.log('Cleaned directory', dir)
 }
 
+async function copyDir (src, dest) {
+  console.log(`Copying directory ${src} => ${dest}`)
+
+  let files
+  try {
+    files = await readDir(src)
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return
+    }
+    throw e
+  }
+
+  await makeDir(dest)
+
+  for (const file of files) {
+    const srcPath = path.join(src, file)
+    const destPath = path.join(dest, file)
+    const isDirectory = await isDir(srcPath)
+    if (isDirectory) {
+      await copyDir(srcPath, destPath)
+      continue
+    }
+    await copyFile(srcPath, destPath)
+  }
+}
+
 async function buildDir (rootDir, destDir, data) {
   console.log(`Building directory ${rootDir} => ${destDir}`)
 
@@ -93,33 +120,6 @@ async function buildDir (rootDir, destDir, data) {
       default:
         await copyFile(srcPath, destPath)
     }
-  }
-}
-
-async function copyDir (src, dest) {
-  console.log(`Copying directory ${src} => ${dest}`)
-
-  let files
-  try {
-    files = await readDir(src)
-  } catch (e) {
-    if (e.code === 'ENOENT') {
-      return
-    }
-    throw e
-  }
-
-  await makeDir(dest)
-
-  for (const file of files) {
-    const srcPath = path.join(src, file)
-    const destPath = path.join(dest, file)
-    const isDirectory = await isDir(srcPath)
-    if (isDirectory) {
-      await copyDir(srcPath, destPath)
-      continue
-    }
-    await copyFile(srcPath, destPath)
   }
 }
 
