@@ -7,19 +7,19 @@ const sass = require('node-sass')
 const {copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
 const Message = require('../models/message')
 
-let layoutPath
+const projectDir = path.join(__dirname, '..', '..')
+const clientDir = path.join(projectDir, 'client')
+
+const src = path.join(clientDir, 'root')
+const temp = path.join(projectDir, 'temp')
+const dest = path.join(projectDir, 'build')
+
+const layoutPath = path.join(clientDir, 'layout.ejs')
 
 const siteBuilder = {
   build: async () => {
     const messages = await Message.findAll({ order: [ [ 'id', 'DESC' ] ], raw: true })
     const data = {messages, message: messages[0]}
-
-    const rootDir = path.join(__dirname, '..', '..')
-    const src = path.join(rootDir, 'client')
-    const temp = path.join(rootDir, 'temp')
-    const dest = path.join(rootDir, 'build')
-
-    layoutPath = path.join(src, '_layout.ejs')
 
     await cleanDir(temp)
     await buildDir(src, temp, data)

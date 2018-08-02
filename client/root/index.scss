@@ -1,10 +1,26 @@
 .header {
+  h1 {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+}
+
+.header__copy {
   align-items: center;
   display: flex;
   flex-direction: column;
 
   @media(min-width: 600px) {
+    align-items: flex-start;
     flex-direction: row;
+
+    p:first-child {
+      margin-top: 0;
+    }
+  }
+
+  p:last-child {
+    margin-bottom: 0;
   }
 }
 
@@ -18,7 +34,7 @@
   }
 
   img {
-    border-radius: 100%;
+    border-radius: 0.25rem;
     width: 100%;
   }
 }

@@ -2,7 +2,7 @@
 <ul class="message-list">
     <% messages.forEach(message => { %>
     <li class="single-message">
-    <%- include('../_components/message/message.ejs', {message}); %>
+    <%- include('../../components/message/message.ejs', {message}); %>
     </li>
     <% }); %>
 </ul>

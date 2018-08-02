@@ -1,0 +1,80 @@
+<header class="header">
+    <h1>Joaquim d'Souza</h1>
+    <div class="header__copy">
+        <div class="header__image">
+            <img src="/images/me.jpg">
+        </div>
+        <div>
+            <p>
+                I'm a full-stack web developer. I was the tech lead on
+                <a href="https://schoolcuts.org.uk">School Cuts</a> (among other things) when I worked for
+                <a href="https://outlandish.com">Outlandish Co-operative</a>, and most of my professional development
+                occurred there.
+            </p>
+            <p>
+                I learnt a huge amount from <a href="https://outlandish.com/about/">all my colleagues</a> there, but a
+                special shout out to <a href="https://outlandish.com/person/sam-gluck/">Sam</a> for showing me the
+                beauty of modern JavaScript. It's my language of choice now, although I'm happy to work with PHP and
+                Python too.
+            </p>
+            <p>
+                Before that, I was taught how to write good back-end code by Daniel of
+                <a href="https://twickets.co.uk">Twickets</a>, and the key concepts of good front-end code by
+                <a href="http://davymacca.com/">Davy McGeorge</a>.
+            </p>
+        </div>
+    </div>
+</header>
+<main>
+    <p>
+        I take on pro-bono work, at-cost work, and commercial work &ndash; all at different rates &ndash; but I won't
+        cost more than £200/day.
+    </p>
+    <ul class="contact-list">
+        <li>Email:<a href="mailto:joaquimds@gmail.com">joaquimds@gmail.com</a></li>
+        <li>Twitter:<a href="https://twitter.com/joaquimds">@joaquimds</a></li>
+    </ul>
+
+    <hr>
+
+    <h2>Message for Joaquim!</h2>
+
+    <% if (message) { %>
+    <%- include('../components/message/message.ejs', {message}); %>
+    <p>
+        You can update this message using the form below. Previous messages can be found <a href="/messages">here</a>.
+    </p>
+    <% } else { %>
+    <p>
+        Write a message for me using the form below.
+    </p>
+    <% } %>
+
+    <form class="form" id="message-form">
+        <div class="form__item">
+            <label for="name">Name</label>
+            <input id="name" type="text" maxlength="64">
+        </div>
+        <div class="form__item">
+            <label for="message">Message</label>
+            <textarea id="message" type="text" maxlength="256"></textarea>
+        </div>
+        <button type="submit">Send</button>
+    </form>
+
+    <hr>
+
+    <p>
+        This site is a weird, probably useless, implementation of a static site generator. I knocked it up on 1st August
+        2018 for fun. When you submit the form above, the whole website is recompiled into a series of static HTML, JS
+        and CSS files.
+    </p>
+    <p>
+        <strong>Pros:</strong> the data is stored in a database, which I think is a better way to store data than in
+        static files.
+    </p>
+    <p>
+        <strong>Cons:</strong> all the cons of having to set up a database. Also, as with all SSGs, it only works if the
+        source files follow a specific pattern. The code can be found on GitHub.
+    </p>
+</main>

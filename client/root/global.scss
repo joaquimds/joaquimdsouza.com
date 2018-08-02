@@ -1,5 +1,5 @@
-@import "../node_modules/normalize-scss/fork-versions/default/normalize";
-@import "./_components/message/message";
+@import "../../node_modules/normalize-scss/fork-versions/default/normalize";
+@import "../components/message/message";
 
 body {
   background-color: #eee;
@@ -29,7 +29,8 @@ label {
 
 .container {
   background-color: white;
-  max-width: 600px;
+  border-radius: 0.25rem;
+  max-width: 650px;
   margin: 0 auto;
   padding: 1rem;
 }
