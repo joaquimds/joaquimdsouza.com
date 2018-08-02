@@ -6,7 +6,7 @@ require('dotenv').load()
  * Module dependencies.
  */
 
-const siteBuilder = require('../server/services/site-builder');
+const siteBuilder = require('../server/services/site-builder')
 const app = require('../server/app')
 const http = require('http')
 

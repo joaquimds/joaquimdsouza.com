@@ -4,7 +4,7 @@ const browserify = require('browserify')
 const babel = require('babel-core')
 const sass = require('node-sass')
 
-const {copyFile, readFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
+const {copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
 const Message = require('../models/message')
 
 let layoutPath
@@ -136,10 +136,10 @@ function getDestPath (destDir, filename, data) {
     switch (extension) {
       case 'scss':
         filename = filenameParts.join('.') + '.css'
-        break;
+        break
       case 'ejs':
         filename = filenameParts.join('.') + '.html'
-        break;
+        break
     }
   }
 

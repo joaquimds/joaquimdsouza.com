@@ -9,5 +9,5 @@ document.getElementById('message-form').addEventListener('submit', async functio
     },
     body: JSON.stringify({ name, message })
   })
-  location.reload(true)
+  window.location.reload(true)
 })
