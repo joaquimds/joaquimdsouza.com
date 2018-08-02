@@ -47,6 +47,7 @@ async function cleanDir (dir) {
       await cleanDir(filePath)
       continue
     }
+
     await deleteFile(filePath)
   }
 
@@ -87,62 +88,54 @@ async function buildDir (rootDir, destDir, data) {
   await makeDir(destDir)
 
   const files = await readDir(rootDir)
+
   for (const filename of files) {
     const srcPath = path.join(rootDir, filename)
-    const destPath = getDestPath(destDir, filename, data)
+    const destPath = getDestPath(destDir, filename)
 
-    const isDirectory = await isDir(srcPath)
-    const isEjs = filename.indexOf('.ejs') > -1
-    switch (true) {
-      case filename.indexOf('_each') === 0 && isEjs:
-        const parentDirName = path.basename(rootDir)
-        const items = data[parentDirName]
-        for (const item of items) {
-          await buildEjs(srcPath, destPath, {item})
-        }
-        break
-      case filename.indexOf('_') === 0:
-        // Skip files that start with '_'
-        break
-      case isDirectory:
-        await buildDir(srcPath, destPath, data)
-        break
-      case filename.indexOf('.js') > -1:
-        await buildJs(srcPath, destPath)
-        break
-      case filename.indexOf('.scss') > -1:
-        await buildScss(srcPath, destPath)
-        break
-      case isEjs:
-        await buildEjs(srcPath, destPath, data)
-        break
-      default:
-        await copyFile(srcPath, destPath)
+    const isIterator = filename.indexOf('_each') === 0
+    if (isIterator) {
+      await buildIterator(srcPath, destPath, data)
+      continue
     }
+
+    await buildDirItem(srcPath, destPath, data)
   }
 }
 
-function getDestPath (destDir, filename, data) {
-  // remove iterator marker
-  if (filename.indexOf('_each.') === 0) {
-    filename = filename.substring(6)
+async function buildDirItem (srcPath, destPath, data) {
+  const filename = path.basename(srcPath)
+  const extension = getFileExtension(filename)
+
+  const isDirectory = await isDir(srcPath)
+  if (isDirectory) {
+    await buildDir(srcPath, destPath, data)
+    return
   }
 
-  const filenameParts = filename.split('.')
-
-  if (filenameParts.length > 1) {
-    const extension = filenameParts.pop()
-    switch (extension) {
-      case 'scss':
-        filename = filenameParts.join('.') + '.css'
-        break
-      case 'ejs':
-        filename = filenameParts.join('.') + '.html'
-        break
-    }
+  switch (true) {
+    case extension === 'js':
+      await buildJs(srcPath, destPath)
+      break
+    case extension === 'scss':
+      await buildScss(srcPath, destPath)
+      break
+    case extension === 'ejs':
+      await buildEjs(srcPath, destPath, data)
+      break
+    default:
+      await copyFile(srcPath, destPath)
   }
+}
 
-  return path.join(destDir, filename)
+async function buildIterator (src, dest, data) {
+  console.log(`Building iterator ${src} => ${dest}`)
+
+  const parentDirName = path.basename(path.dirname(src))
+  const items = data[parentDirName]
+  for (const item of items) {
+    await buildDirItem(src, dest, {item})
+  }
 }
 
 async function buildJs (src, dest) {
@@ -211,6 +204,33 @@ function renderEjs (src, data) {
       resolve(str)
     })
   })
+}
+
+function getDestPath (destDir, filename) {
+  // remove iterator marker
+  if (filename.indexOf('_each.') === 0) {
+    filename = filename.substring(6)
+  }
+
+  const extension = getFileExtension(filename)
+  switch (extension) {
+    case 'scss':
+      filename = filename.replace('.scss', '.css')
+      break
+    case 'ejs':
+      filename = filename.replace('.ejs', '.html')
+      break
+  }
+
+  return path.join(destDir, filename)
+}
+
+function getFileExtension (filename) {
+  const parts = filename.split('.')
+  if (parts.length > 1) {
+    return parts.pop()
+  }
+  return ''
 }
 
 function replaceVariablesInFilename (filename, data) {
