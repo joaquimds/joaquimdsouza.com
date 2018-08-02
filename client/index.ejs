@@ -1,12 +1,12 @@
-<div class="header">
+<header class="header">
     <div class="header__image">
         <img src="/images/me.jpg">
     </div>
     <div>
-        <h1>Hi</h1>
+        <h1>Joaquim d'Souza</h1>
         <p>
             I'm a full-stack web developer. I was the tech lead on <a href="https://schoolcuts.org.uk">School Cuts</a>
-            (among other things) when I worked for <a href="https://outlandish.com">Outlandish co-operative</a>, and
+            (among other things) when I worked for <a href="https://outlandish.com">Outlandish Co-operative</a>, and
             most of my professional development occurred there.
         </p>
         <p>
@@ -15,47 +15,56 @@
             <a href="http://davymacca.com/">Davy McGeorge</a>.
         </p>
     </div>
-</div>
+</header>
+<main>
+    <p>
+        I take on pro-bono work, at-cost work, and commercial work &ndash; all at different rates &ndash; but I won't
+        cost more than £200/day.
+    </p>
+    <ul class="contact-list">
+        <li>Email:<a href="mailto:joaquimds@gmail.com">joaquimds@gmail.com</a></li>
+        <li>Twitter:<a href="https://twitter.com/joaquimds">@joaquimds</a></li>
+    </ul>
 
-<p>
-    I take on pro-bono work, at-cost work, and commercial work - all at different rates - but I won't cost more than
-    £200/day. As a communist, this still seems like too much, but I've been told that people won't take me seriously
-    if I go any lower.
-</p>
-<ul>
-    <li>Email: joaquimds@gmail.com</li>
-    <li>Twitter: @joaquimds</li>
-</ul>
-<p>
-    This site is a weird, probably useless, implementation of a static site generator. I knocked it up on 1st August
-    2018 for fun. When you submit the form below, the whole website is recompiled into a series of static HTML, JS and
-    CSS files.
-</p>
-<p>
-    Pros: the data is stored in a database, which I think is a better way to store data than in static
-    files.
-</p>
-<p>
-    Cons: all the cons of having to set up a database. Also, as with all SSGs, it only works if the source
-    files follow a specific pattern. The code can be found on GitHub.
-</p>
-<% if (message) { %>
-<p>Current message for Joaquim:</p>
-<a href="/messages/<%= message.id %>.html">
-    <%= message.name %>: <%= message.body %>
-</a>
-<% } %>
-<p>
-    You can update this message using the form below. Previous messages can be found <a href="/messages">here</a>.
-</p>
-<form id="message-form">
-    <div>
-        <label for="name">Name</label>
-        <input id="name" type="text" maxlength="64">
-    </div>
-    <div>
-        <label for="message">Message</label>
-        <input id="message" type="text" maxlength="256">
-    </div>
-    <button type="submit">Commit</button>
-</form>
+    <hr>
+
+    <h2>Message for Joaquim!</h2>
+
+    <% if (message) { %>
+    <%- include('_components/message/message.ejs', {message}); %>
+    <p>
+        You can update this message using the form below. Previous messages can be found <a href="/messages">here</a>.
+    </p>
+    <% } else { %>
+    <p>
+        Write a message for me using the form below.
+    </p>
+    <% } %>
+
+    <form class="form" id="message-form">
+        <div class="form__item">
+            <label for="name">Name</label>
+            <input id="name" type="text" maxlength="64">
+        </div>
+        <div class="form__item">
+            <label for="message">Message</label>
+            <textarea id="message" type="text" maxlength="256"></textarea>
+        </div>
+        <button type="submit">Send</button>
+    </form>
+
+    <hr>
+
+    <p>
+        This site is a weird, probably useless, implementation of a static site generator. I knocked it up on 1st August
+        2018 for fun. When you submit the form above, the whole website is recompiled into a series of static HTML, JS
+        and CSS files.
+    </p>
+    <p>
+        <strong>Pros:</strong> the data is stored in a database, which I think is a better way to store data than in static files.
+    </p>
+    <p>
+        <strong>Cons:</strong> all the cons of having to set up a database. Also, as with all SSGs, it only works if the source files
+        follow a specific pattern. The code can be found on GitHub.
+    </p>
+</main>

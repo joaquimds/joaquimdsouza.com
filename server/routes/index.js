@@ -1,7 +1,16 @@
+const EventEmitter = require('events')
 const router = require('express').Router()
+const { queue } = require('async')
 
 const Message = require('../models/message')
 const siteBuilder = require('../services/site-builder')
+
+const buildQueue = queue(async (task, callback) => {
+  await siteBuilder.build()
+  callback()
+}, 1)
+
+const buildEmitter = new EventEmitter()
 
 router.post('/commit', async (req, res, next) => {
   const name = req.body.name
@@ -18,9 +27,16 @@ router.post('/commit', async (req, res, next) => {
     return res.sendStatus(400)
   }
 
-  await siteBuilder.build()
+  buildEmitter.once('complete', () => {
+    res.sendStatus(200)
+  })
 
-  res.sendStatus(200)
+  // only add to the queue if there are no builds waiting
+  if (buildQueue.length() === 0) {
+    buildQueue.push({}, () => {
+      buildEmitter.emit('complete')
+    })
+  }
 })
 
 module.exports = router

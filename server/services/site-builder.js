@@ -7,23 +7,26 @@ const sass = require('node-sass')
 const {copyFile, readFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
 const Message = require('../models/message')
 
-let _layout
+let layoutPath
 
 const siteBuilder = {
   build: async () => {
-    const messages = await Message.findAll({ order: [ [ 'id', 'DESC' ] ] })
+    const messages = await Message.findAll({ order: [ [ 'id', 'DESC' ] ], raw: true })
     const data = {messages, message: messages[0]}
 
     const rootDir = path.join(__dirname, '..', '..')
     const src = path.join(rootDir, 'client')
+    const temp = path.join(rootDir, 'temp')
     const dest = path.join(rootDir, 'build')
 
-    _layout = await readFile(path.join(src, '_layout.ejs'))
+    layoutPath = path.join(src, '_layout.ejs')
 
-    console.log('Cleaning', dest)
+    await cleanDir(temp)
+    await buildDir(src, temp, data)
     await cleanDir(dest)
+    await copyDir(temp, dest)
 
-    await buildDir(src, dest, data)
+    console.log('Build complete')
   }
 }
 
@@ -38,8 +41,7 @@ async function cleanDir (dir) {
     throw e
   }
 
-  const toRemove = files.filter(file => file !== '.gitkeep')
-  for (const file of toRemove) {
+  for (const file of files) {
     const filePath = path.join(dir, file)
     const isDirectory = await isDir(filePath)
     if (isDirectory) {
@@ -50,31 +52,34 @@ async function cleanDir (dir) {
   }
 
   await deleteDir(dir)
+  console.log('Cleaned directory', dir)
 }
 
 async function buildDir (rootDir, destDir, data) {
-  console.log(`Building ${rootDir} => ${destDir}`)
+  console.log(`Building directory ${rootDir} => ${destDir}`)
 
   await makeDir(destDir)
 
   const files = await readDir(rootDir)
   for (const filename of files) {
     const srcPath = path.join(rootDir, filename)
-    const destPath = getDestPath(destDir, filename)
+    const destPath = getDestPath(destDir, filename, data)
+
     const isDirectory = await isDir(srcPath)
+    const isEjs = filename.indexOf('.ejs') > -1
     switch (true) {
-      case isDirectory:
-        await buildDir(srcPath, destPath, data)
-        break
-      case filename.indexOf('_each') === 0:
+      case filename.indexOf('_each') === 0 && isEjs:
         const parentDirName = path.basename(rootDir)
         const items = data[parentDirName]
         for (const item of items) {
-          await buildEjs(srcPath, destPath, item)
+          await buildEjs(srcPath, destPath, {item})
         }
         break
       case filename.indexOf('_') === 0:
         // Skip files that start with '_'
+        break
+      case isDirectory:
+        await buildDir(srcPath, destPath, data)
         break
       case filename.indexOf('.js') > -1:
         await buildJs(srcPath, destPath)
@@ -82,7 +87,7 @@ async function buildDir (rootDir, destDir, data) {
       case filename.indexOf('.scss') > -1:
         await buildScss(srcPath, destPath)
         break
-      case filename.indexOf('.ejs') > -1:
+      case isEjs:
         await buildEjs(srcPath, destPath, data)
         break
       default:
@@ -91,7 +96,34 @@ async function buildDir (rootDir, destDir, data) {
   }
 }
 
-function getDestPath (dir, filename) {
+async function copyDir (src, dest) {
+  console.log(`Copying directory ${src} => ${dest}`)
+
+  let files
+  try {
+    files = await readDir(src)
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return
+    }
+    throw e
+  }
+
+  await makeDir(dest)
+
+  for (const file of files) {
+    const srcPath = path.join(src, file)
+    const destPath = path.join(dest, file)
+    const isDirectory = await isDir(srcPath)
+    if (isDirectory) {
+      await copyDir(srcPath, destPath)
+      continue
+    }
+    await copyFile(srcPath, destPath)
+  }
+}
+
+function getDestPath (destDir, filename, data) {
   // remove iterator marker
   if (filename.indexOf('_each.') === 0) {
     filename = filename.substring(6)
@@ -111,11 +143,11 @@ function getDestPath (dir, filename) {
     }
   }
 
-  return path.join(dir, filename)
+  return path.join(destDir, filename)
 }
 
 async function buildJs (src, dest) {
-  console.log(`Building ${src} => ${dest}`)
+  console.log(`Building script ${src} => ${dest}`)
 
   const expandedJs = await browserifyJs(src)
   const transpiledJs = babel.transform(expandedJs, {presets: ['babel-preset-env']})
@@ -143,7 +175,7 @@ function browserifyJs (src) {
 }
 
 async function buildScss (src, dest) {
-  console.log(`Building ${src} => ${dest}`)
+  console.log(`Building css ${src} => ${dest}`)
 
   const scss = await compileScss(src)
   await writeFile(dest, scss)
@@ -163,30 +195,43 @@ function compileScss (file) {
 }
 
 async function buildEjs (src, dest, data) {
-  console.log(`Building ${src} => ${dest}`)
-
-  const template = await readFile(src)
-  const page = ejs.render(template, data, {})
-  const html = ejs.render(_layout, {page}, {})
-
   const expandedDest = replaceVariablesInFilename(dest, data)
+  console.log(`Building html ${src} => ${expandedDest}`)
+
+  const page = await renderEjs(src, data)
+  const html = await renderEjs(layoutPath, { page })
 
   await writeFile(expandedDest, html)
 }
 
-function replaceVariablesInFilename (filename, data) {
-  while (filename.indexOf('[[') > -1) {
-    let startingParts = filename.split('[[')
-    const firstPart = startingParts.shift()
-    startingParts = [firstPart, startingParts.join('[[')]
+function renderEjs (src, data) {
+  return new Promise((resolve, reject) => {
+    ejs.renderFile(src, data, {}, (err, str) => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(str)
+    })
+  })
+}
 
-    let closingParts = startingParts[1].split(']]')
-    const variableNamePart = closingParts[0]
-    const variableName = variableNamePart.trim()
-    const value = data[variableName]
-    const regex = new RegExp('\\[\\[' + variableNamePart + '\\]\\]')
-    filename = filename.replace(regex, value)
+function replaceVariablesInFilename (filename, data) {
+  const regex = new RegExp('\\[\\[(.*)\\]\\]')
+
+  while (regex.test(filename)) {
+    const match = filename.match(regex)
+    const toReplace = match[0]
+    const variableName = match[1].trim()
+
+    const variableNamePath = variableName.split('.')
+    let value = data
+    while (variableNamePath.length > 0) {
+      value = value[variableNamePath.shift()]
+    }
+
+    filename = filename.replace(toReplace, value)
   }
+
   return filename
 }
 

@@ -1,15 +1,83 @@
 .header {
   align-items: center;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+
+  @media(min-width: 600px) {
+    flex-direction: row;
+  }
 }
 
 .header__image {
-  margin-right: 1rem;
-  width: 500px;
+  max-width: 100%;
+  width: 250px;
+
+  @media(min-width: 600px) {
+    margin-right: 1rem;
+    width: 100%;
+  }
 
   img {
     border-radius: 100%;
     width: 100%;
   }
+}
+
+.contact-list {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin-top: 1.5rem;
+  padding: 0;
+
+  li {
+    margin-bottom: 1rem;
+    width: 100%;
+
+    a {
+      margin: 0 0.25rem;
+    }
+  }
+
+  @media(min-width: 600px) {
+    flex-direction: row;
+    justify-content: space-around;
+    margin: 2rem 0;
+
+    li {
+      margin: 0 1rem;
+
+      &:first-child {
+        text-align: right;
+      }
+    }
+  }
+}
+
+.form {
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+
+  button {
+    background: none;
+    border: 1px solid #999;
+    border-radius: 0.25rem;
+    box-shadow: none;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+
+    &:hover,&:focus,&:active {
+      background-color: #ddd;
+    }
+  }
+}
+
+.form__item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
 }

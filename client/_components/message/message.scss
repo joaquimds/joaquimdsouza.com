@@ -1,0 +1,27 @@
+.message {
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  font-weight: normal;
+  padding: 1rem;
+
+  &:hover,&:focus,&:active {
+    color: black;
+    background-color: #ddd;
+  }
+
+  em {
+    margin-bottom: 0.5rem;
+  }
+
+  div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  small {
+    font-size: 75%;
+    font-weight: bold;
+  }
+}

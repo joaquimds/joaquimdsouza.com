@@ -1,0 +1,12 @@
+<a class="message" href="/messages/<%= message.id %>.html">
+    <em><%= message.body %></em>
+    <div>
+        <small>
+            <%= message.createdAt.toLocaleDateString('en-GB'); %>,
+            <%= message.createdAt.toLocaleTimeString('en-GB'); %>
+        </small>
+        <span>
+            &mdash; <%= message.name %>
+        </span>
+    </div>
+</a>

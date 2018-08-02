@@ -1,9 +1,9 @@
 @import "../node_modules/normalize-scss/fork-versions/default/normalize";
+@import "./_components/message/message";
 
 body {
   background-color: #eee;
   font-family: sans-serif;
-  line-height: 1.5rem;
   padding: 1rem;
 }
 
@@ -12,9 +12,19 @@ a {
   font-weight: bold;
   text-decoration: none;
 
-  &:hover {
+  &:hover,&:focus,&:active {
     color: #555;
   }
+}
+
+p {
+  line-height: 1.5rem;
+}
+
+label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
 }
 
 .container {

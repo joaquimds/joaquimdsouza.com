@@ -1,9 +1,8 @@
-<ul>
+<h1>Messages for Joaquim</h1>
+<ul class="message-list">
     <% messages.forEach(message => { %>
     <li>
-        <a href="/messages/<%= message.id %>.html">
-            <%= message.name %>: <%= message.body %>
-        </a>
+    <%- include('../_components/message/message.ejs', {message}); %>
     </li>
     <% }); %>
 </ul>
