@@ -1,7 +1,6 @@
 const path = require('path')
 const ejs = require('ejs')
 const browserify = require('browserify')
-const babel = require('babel-core')
 const sass = require('node-sass')
 
 const {copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
@@ -18,7 +17,7 @@ const layoutPath = path.join(clientDir, 'layout.ejs')
 
 const siteBuilder = {
   build: async () => {
-    const messages = await Message.findAll({ order: [ [ 'id', 'DESC' ] ], raw: true })
+    const messages = await Message.findAll({order: [['id', 'DESC']], raw: true})
     const data = {messages, message: messages[0]}
 
     await cleanDir(temp)
@@ -150,17 +149,16 @@ async function buildJs (src, dest) {
   console.log(`Building script ${src} => ${dest}`)
 
   const expandedJs = await browserifyJs(src)
-  const transpiledJs = babel.transform(expandedJs, {presets: ['babel-preset-env']})
-  await writeFile(dest, transpiledJs.code)
+
+  await writeFile(dest, expandedJs)
 }
 
 function browserifyJs (src) {
   return new Promise((resolve, reject) => {
     let script = ''
 
-    const browserifyStream = browserify()
-    browserifyStream.add(src)
-    browserifyStream
+    browserify(src)
+      .transform('babelify', {presets: ['babel-preset-minify', 'babel-preset-env'], global: true})
       .bundle()
       .on('data', buf => {
         script += buf.toString()
@@ -199,7 +197,7 @@ async function buildEjs (src, dest, data) {
   console.log(`Building html ${src} => ${expandedDest}`)
 
   const page = await renderEjs(src, data)
-  const html = await renderEjs(layoutPath, { page })
+  const html = await renderEjs(layoutPath, {page})
 
   await writeFile(expandedDest, html)
 }
