@@ -1,7 +1,7 @@
 <h1>Messages for Joaquim</h1>
 <ul class="message-list">
     <% messages.forEach(message => { %>
-    <li>
+    <li class="single-message">
     <%- include('../_components/message/message.ejs', {message}); %>
     </li>
     <% }); %>

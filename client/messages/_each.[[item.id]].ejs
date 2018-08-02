@@ -1,2 +1,4 @@
-<h1>Message <%= item.id %></h1>
-<%- include('../_components/message/message.ejs', {message: item}); %>
+<div class="single-message">
+    <h1>Message <%= item.id %></h1>
+    <%- include('../_components/message/message.ejs', {message: item}); %>
+</div>
