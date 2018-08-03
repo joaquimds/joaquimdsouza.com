@@ -52,21 +52,14 @@ async function cleanDir (dir) {
   }
 
   await deleteDir(dir)
+
   console.log('Cleaned directory', dir)
 }
 
 async function copyDir (src, dest) {
   console.log(`Copying directory ${src} => ${dest}`)
 
-  let files
-  try {
-    files = await readDir(src)
-  } catch (e) {
-    if (e.code === 'ENOENT') {
-      return
-    }
-    throw e
-  }
+  let files = await readDir(src)
 
   await makeDir(dest)
 
@@ -93,38 +86,29 @@ async function buildDir (rootDir, destDir, data) {
     const srcPath = path.join(rootDir, filename)
     const destPath = getDestPath(destDir, filename)
 
-    const isIterator = filename.indexOf('_each') === 0
-    if (isIterator) {
-      await buildIterator(srcPath, destPath, data)
+    const isDirectory = await isDir(srcPath)
+    if (isDirectory) {
+      await buildDir(srcPath, destPath, data)
       continue
     }
 
-    await buildDirItem(srcPath, destPath, data)
-  }
-}
-
-async function buildDirItem (srcPath, destPath, data) {
-  const filename = path.basename(srcPath)
-  const extension = getFileExtension(filename)
-
-  const isDirectory = await isDir(srcPath)
-  if (isDirectory) {
-    await buildDir(srcPath, destPath, data)
-    return
-  }
-
-  switch (true) {
-    case extension === 'js':
-      await buildJs(srcPath, destPath)
-      break
-    case extension === 'scss':
-      await buildScss(srcPath, destPath)
-      break
-    case extension === 'ejs':
-      await buildEjs(srcPath, destPath, data)
-      break
-    default:
-      await copyFile(srcPath, destPath)
+    const extension = getFileExtension(filename)
+    switch (true) {
+      case filename.indexOf('_each') === 0:
+        await buildIterator(srcPath, destPath, data)
+        break;
+      case extension === 'js':
+        await buildJs(srcPath, destPath)
+        break
+      case extension === 'scss':
+        await buildScss(srcPath, destPath)
+        break
+      case extension === 'ejs':
+        await buildEjs(srcPath, destPath, data)
+        break
+      default:
+        await copyFile(srcPath, destPath)
+    }
   }
 }
 
@@ -134,7 +118,7 @@ async function buildIterator (src, dest, data) {
   const parentDirName = path.basename(path.dirname(src))
   const items = data[parentDirName]
   for (const item of items) {
-    await buildDirItem(src, dest, {item})
+    await buildEjs(src, dest, {item})
   }
 }
 
