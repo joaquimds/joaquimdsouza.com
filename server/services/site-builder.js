@@ -3,7 +3,7 @@ const ejs = require('ejs')
 const browserify = require('browserify')
 const sass = require('node-sass')
 
-const {copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
+const {fileExists, copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
 const Message = require('../models/message')
 
 const projectDir = path.join(__dirname, '..', '..')
@@ -15,8 +15,16 @@ const dest = path.join(projectDir, 'build')
 
 const layoutPath = path.join(clientDir, 'layout.ejs')
 
+let cache
+
 const siteBuilder = {
   build: async () => {
+    if (!cache) {
+      cache = path.join(projectDir, 'cache')
+      await cleanDir(cache)
+      await makeDir(cache)
+    }
+
     const messages = await Message.findAll({order: [['id', 'DESC']], raw: true})
     const data = {messages, message: messages[0]}
 
@@ -96,7 +104,7 @@ async function buildDir (rootDir, destDir, data) {
     switch (true) {
       case filename.indexOf('_each') === 0:
         await buildIterator(srcPath, destPath, data)
-        break;
+        break
       case extension === 'js':
         await buildJs(srcPath, destPath)
         break
@@ -125,9 +133,15 @@ async function buildIterator (src, dest, data) {
 async function buildJs (src, dest) {
   console.log(`Building script ${src} => ${dest}`)
 
-  const expandedJs = await browserifyJs(src)
+  const cachedFile = path.join(cache, encodeURIComponent(src))
+  const isCached = await fileExists(cachedFile)
 
-  await writeFile(dest, expandedJs)
+  if (!isCached) {
+    const expandedJs = await browserifyJs(src)
+    await writeFile(cachedFile, expandedJs)
+  }
+
+  await copyFile(cachedFile, dest)
 }
 
 function browserifyJs (src) {

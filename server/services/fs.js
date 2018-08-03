@@ -2,6 +2,17 @@ const fs = require('fs')
 
 module.exports = {
 
+  fileExists: (src) => {
+    return new Promise((resolve, reject) => {
+      fs.lstat(src, (err, stats) => {
+        if (err && err.code !== 'ENOENT') {
+          return reject(err)
+        }
+        resolve(Boolean(stats))
+      })
+    })
+  },
+
   copyFile: (src, dest) => {
     return new Promise((resolve, reject) => {
       fs.copyFile(src, dest, (err) => {

@@ -24,7 +24,7 @@ router.post('/commit', async (req, res, next) => {
     await Message.create({name: name.substring(0, 64), body: message.substring(0, 256)})
   } catch (e) {
     console.log('Error', e.message)
-    return res.sendStatus(400)
+    return res.sendStatus(409)
   }
 
   buildEmitter.once('complete', () => {

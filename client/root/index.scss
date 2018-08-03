@@ -76,24 +76,33 @@
   border-radius: 0.25rem;
   padding: 1rem;
   margin-bottom: 1.25rem;
-
-  button {
-    background: none;
-    border: 1px solid #999;
-    border-radius: 0.25rem;
-    box-shadow: none;
-    font-size: 0.75rem;
-    font-weight: bold;
-    padding: 0.5rem 1rem;
-
-    &:hover,&:focus,&:active {
-      background-color: #ddd;
-    }
-  }
 }
 
 .form__item {
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
+}
+
+.form__error {
+  display: none;
+  color: red;
+
+  &.form__error--active {
+    display: block;
+  }
+}
+
+.form__submit {
+  background: none;
+  border: 1px solid #999;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+
+  &:hover,&:focus,&:active,&.form__submit--active {
+    background-color: #ddd;
+  }
 }
