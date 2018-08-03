@@ -52,6 +52,14 @@ function setLoading (isLoading) {
 }
 
 function setError (message) {
-  errorSpan.innerText = message
-  errorSpan.classList.add('form__error--active')
+  const activeClass = 'form__error--active'
+
+  if (message) {
+    errorSpan.innerText = message
+    errorSpan.classList.add(activeClass)
+    return
+  }
+
+  errorSpan.classList.remove(activeClass)
+  errorSpan.innerText = ''
 }

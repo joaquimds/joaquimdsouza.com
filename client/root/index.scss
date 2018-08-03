@@ -85,8 +85,9 @@
 }
 
 .form__error {
-  display: none;
   color: red;
+  display: none;
+  margin-bottom: 0.25rem;
 
   &.form__error--active {
     display: block;
