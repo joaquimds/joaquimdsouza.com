@@ -1,4 +1,10 @@
-<div class="single-message">
-    <h1>Message <%= item.id %></h1>
+<div class="message-header">
+    <h1>Message #<%= item.id %></h1>
+    <a href="/">Home</a>
+</div>
+<div class="message-container">
     <%- include('../../components/message/message.ejs', {message: item}); %>
+</div>
+<div class="messages-link-container">
+    <a href="/messages">View all messages</a>
 </div>
