@@ -26,7 +26,7 @@ const siteBuilder = {
     }
 
     const messages = await Message.findAll({order: [['id', 'DESC']], raw: true})
-    const data = {messages, message: messages[0]}
+    const data = {messages, message: messages[0], date: new Date()}
 
     await cleanDir(temp)
     await buildDir(src, temp, data)
@@ -126,7 +126,7 @@ async function buildIterator (src, dest, data) {
   const parentDirName = path.basename(path.dirname(src))
   const items = data[parentDirName]
   for (const item of items) {
-    await buildEjs(src, dest, {item})
+    await buildEjs(src, dest, {item, ...data})
   }
 }
 
@@ -188,7 +188,7 @@ async function buildEjs (src, dest, data) {
   console.log(`Building html ${src} => ${expandedDest}`)
 
   const page = await renderEjs(src, data)
-  const html = await renderEjs(layoutPath, {page})
+  const html = await renderEjs(layoutPath, {page, ...data})
 
   await writeFile(expandedDest, html)
 }
