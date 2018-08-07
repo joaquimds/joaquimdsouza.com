@@ -1,10 +1,10 @@
-<div class="message-header">
+<header>
     <h1>Messages for Joaquim</h1>
     <a href="/">Home</a>
-</div>
-<ul class="message-list">
+</header>
+<ul class="messages__list">
     <% messages.forEach(message => { %>
-    <li class="message-container">
+    <li class="message__container">
     <%- include('../../components/message/message.ejs', {message}); %>
     </li>
     <% }); %>

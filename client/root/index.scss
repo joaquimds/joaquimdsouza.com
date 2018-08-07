@@ -1,11 +1,8 @@
-.header {
-  h1 {
-    font-size: 1.8rem;
-    text-align: center;
-  }
+.home__header {
+  justify-content: center;
 }
 
-.header__copy {
+.home__intro {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -24,7 +21,7 @@
   }
 }
 
-.header__image {
+.home__image {
   max-width: 100%;
   width: 250px;
 
@@ -39,7 +36,7 @@
   }
 }
 
-.contact-list {
+.home__contact {
   align-items: center;
   display: flex;
   flex-direction: column;

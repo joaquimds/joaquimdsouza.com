@@ -1,20 +1,20 @@
-.message-header {
+.messages__header,.message__header {
   align-items: center;
   display: flex;
   justify-content: space-between;
 }
 
-.message-list {
+.messages__list {
   list-style: none;
   margin-top: 0;
   padding: 0;
 }
 
-.message-container {
+.message__container {
   margin-bottom: 1rem;
 }
 
-.messages-link-container {
+.message__link {
   margin-bottom: 0.5rem;
   text-align: center;
 }

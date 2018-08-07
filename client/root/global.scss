@@ -7,12 +7,16 @@ body {
   padding: 1rem;
 }
 
+h1 {
+  font-size: 1.8rem;
+}
+
 a {
   color: black;
   font-weight: bold;
   text-decoration: none;
 
-  &:hover,&:focus,&:active {
+  &:hover, &:focus, &:active {
     color: #555;
   }
 }
@@ -33,6 +37,12 @@ label {
   max-width: 650px;
   margin: 0 auto;
   padding: 1rem;
+}
+
+header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
 }
 
 footer {
