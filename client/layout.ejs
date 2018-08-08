@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Joaquim d'Souza dot com</title>
+    <title>Joaquim d'Souza dot com<%= (route === '/') ? '' : (' | ' + title) %></title>
     <meta name="description" content="Joaquim d'Souza's web presence">
     <meta name="author" content="Joaquim d'Souza">
 
@@ -15,9 +15,18 @@
 
 <body>
 
-<div class="container">
+<div id="container" class="container">
 
-    <%- page %>
+    <%- include('./components/accessibility/switch.ejs') %>
+    <header class="<%= (route === '/') ? 'home__header' : '' %>">
+        <h1><%= title %></h1>
+        <% if (route !== '/') { %>
+        <a href="/">Home</a>
+        <% } %>
+    </header>
+    <main>
+        <%- page %>
+    </main>
     <footer>
         <small>
             <em>

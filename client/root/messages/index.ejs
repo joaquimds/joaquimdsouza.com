@@ -1,11 +1,8 @@
-<header>
-    <h1>Messages for Joaquim</h1>
-    <a href="/">Home</a>
-</header>
+<h1>Messages for Joaquim</h1>
 <ul class="messages__list">
     <% messages.forEach(message => { %>
     <li class="message__container">
-    <%- include('../../components/message/message.ejs', {message}); %>
+        <%- include('../../components/message/message.ejs', {message}); %>
     </li>
     <% }); %>
 </ul>

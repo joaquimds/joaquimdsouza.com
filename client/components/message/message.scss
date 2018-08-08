@@ -1,5 +1,7 @@
+@import "../../variables";
+
 .message {
-  border: 1px solid #ddd;
+  border: 1px solid $dark;
   border-radius: 0.25rem;
   display: flex;
   flex-direction: column;
@@ -8,7 +10,7 @@
 
   &:hover,&:focus,&:active {
     color: black;
-    background-color: #ddd;
+    background-color: $medium;
   }
 
   em {

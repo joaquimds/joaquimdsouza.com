@@ -1,14 +1,34 @@
 @import "../../node_modules/normalize-scss/fork-versions/default/normalize";
+
+@import "../variables";
 @import "../components/message/message";
+@import "../components/accessibility/switch.scss";
+
 
 body {
-  background-color: #eee;
+  background-color: $light;
   font-family: sans-serif;
   padding: 1rem;
 }
 
+header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+footer {
+  text-align: right;
+}
+
 h1 {
   font-size: 1.8rem;
+  margin: 0;
+}
+
+p {
+  line-height: 1.5rem;
 }
 
 a {
@@ -17,12 +37,8 @@ a {
   text-decoration: none;
 
   &:hover, &:focus, &:active {
-    color: #555;
+    color: $dark;
   }
-}
-
-p {
-  line-height: 1.5rem;
 }
 
 label {
@@ -31,20 +47,20 @@ label {
   margin-bottom: 0.25rem;
 }
 
+input,textarea {
+  background-color: $cream;
+  border: 1px solid $dark;
+}
+
 .container {
   background-color: white;
   border-radius: 0.25rem;
   max-width: 650px;
   margin: 0 auto;
   padding: 1rem;
+
+  &.container--accessible {
+    background-color: $cream;
+  }
 }
 
-header {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-}
-
-footer {
-  text-align: right;
-}

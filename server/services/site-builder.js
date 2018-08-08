@@ -1,5 +1,6 @@
 const path = require('path')
 const ejs = require('ejs')
+const cheerio = require('cheerio')
 const browserify = require('browserify')
 const sass = require('node-sass')
 
@@ -187,8 +188,15 @@ async function buildEjs (src, dest, data) {
   const expandedDest = replaceVariablesInFilename(dest, data)
   console.log(`Building html ${src} => ${expandedDest}`)
 
+  const route = getRelativeRoute(expandedDest)
   const page = await renderEjs(src, data)
-  const html = await renderEjs(layoutPath, {page, ...data})
+
+  const $ = cheerio.load(page)
+  const $h1 = $('h1')
+  const title = $h1.text()
+  $h1.remove()
+
+  const html = await renderEjs(layoutPath, {page: $.html(), title, route, ...data})
 
   await writeFile(expandedDest, html)
 }
@@ -232,7 +240,7 @@ function getFileExtension (filename) {
 }
 
 function replaceVariablesInFilename (filename, data) {
-  const regex = new RegExp('\\[\\[(.*)\\]\\]')
+  const regex = new RegExp('\\[\\[(.*)]]')
 
   while (regex.test(filename)) {
     const match = filename.match(regex)
@@ -249,6 +257,17 @@ function replaceVariablesInFilename (filename, data) {
   }
 
   return filename
+}
+
+function getRelativeRoute (destPath) {
+  const relativePath = destPath.split(temp)[1]
+  const simplePath = relativePath.split('index.html')[0]
+
+  if (process.platform === 'win32') {
+    return simplePath.replace(/\\/g, '/')
+  }
+
+  return simplePath
 }
 
 module.exports = siteBuilder

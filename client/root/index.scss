@@ -1,3 +1,5 @@
+@import "../variables";
+
 .home__header {
   justify-content: center;
 }
@@ -69,7 +71,7 @@
 }
 
 .form {
-  border: 1px solid #ddd;
+  border: 1px solid $dark;
   border-radius: 0.25rem;
   padding: 1rem;
   margin-bottom: 1.25rem;
@@ -93,7 +95,7 @@
 
 .form__submit {
   background: none;
-  border: 1px solid #999;
+  border: 1px solid $dark;
   border-radius: 0.25rem;
   box-shadow: none;
   font-size: 0.75rem;
@@ -101,7 +103,7 @@
   padding: 0.5rem 1rem;
 
   &:hover,&:focus,&:active,&.form__submit--active {
-    background-color: #ddd;
+    background-color: $medium;
   }
 }
 
