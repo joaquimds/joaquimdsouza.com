@@ -53,9 +53,6 @@ function showDashboard () {
       await deleteMessage(messageId)
     })
   }
-  for (const message of messages) {
-
-  }
 }
 
 function deleteMessage (messageId) {
