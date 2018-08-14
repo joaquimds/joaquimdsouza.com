@@ -56,8 +56,8 @@
         <label for="message">Message</label>
         <textarea id="message" type="text" maxlength="256"></textarea>
     </div>
-    <small id="message-form-error" class="form__error"></small>
-    <button id="message-form-submit" class="form__submit" type="submit">Send</button>
+    <%- include('../components/forms/error.ejs') %>
+    <button id="message-form-submit" class="form__button" type="submit">Send</button>
 </form>
 
 <hr>

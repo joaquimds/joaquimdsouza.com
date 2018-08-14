@@ -1,5 +1,5 @@
+const { setError } = require('../components/forms/error')
 const submitButton = document.getElementById('message-form-submit')
-const errorSpan = document.getElementById('message-form-error')
 
 document.getElementById('message-form').addEventListener('submit', async function (e) {
   e.preventDefault()
@@ -21,7 +21,7 @@ document.getElementById('message-form').addEventListener('submit', async functio
 
   if (error) {
     setLoading(false)
-    setError(error)
+    setError('message-form', error)
     return
   }
 
@@ -29,7 +29,7 @@ document.getElementById('message-form').addEventListener('submit', async functio
 })
 
 function sendMessage (name, message) {
-  return window.fetch('/api/commit', {
+  return window.fetch('/api/message', {
     method: 'post',
     headers: {
       'Content-Type': 'application/json'
@@ -39,7 +39,7 @@ function sendMessage (name, message) {
 }
 
 function setLoading (isLoading) {
-  const activeClass = 'form__submit--active'
+  const activeClass = 'form__button--active'
 
   if (isLoading) {
     submitButton.classList.add(activeClass)
@@ -49,17 +49,4 @@ function setLoading (isLoading) {
 
   submitButton.classList.remove(activeClass)
   submitButton.innerText = 'Send'
-}
-
-function setError (message) {
-  const activeClass = 'form__error--active'
-
-  if (message) {
-    errorSpan.innerText = message
-    errorSpan.classList.add(activeClass)
-    return
-  }
-
-  errorSpan.classList.remove(activeClass)
-  errorSpan.innerText = ''
 }

@@ -3,6 +3,7 @@
 @import "../variables";
 @import "../components/message/message";
 @import "../components/accessibility/switch.scss";
+@import "../components/forms/forms.scss";
 
 
 body {
@@ -16,6 +17,10 @@ header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1rem;
+
+  a {
+    text-decoration: underline;
+  }
 }
 
 footer {
@@ -64,3 +69,6 @@ input,textarea {
   }
 }
 
+.hidden {
+  display: none;
+}

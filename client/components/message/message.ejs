@@ -1,5 +1,10 @@
-<a class="message" href="/messages/<%= message.id %>.html">
-    <em><%= message.body %></em>
+<a class="message" id="message-<%= message.id %>" href="/messages/<%= message.id %>.html">
+    <div>
+        <em><%= message.body %></em>
+        <% if (locals.isAdmin) { %>
+        <button class="delete__button" type="button" id="delete-<%= message.id %>">&times;</button>
+        <% } %>
+    </div>
     <div>
         <small>
             <%= message.createdAt.toLocaleDateString('en-GB'); %>,

@@ -9,6 +9,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, '..', 'build')))
 app.use(express.static(path.join(__dirname, '..', 'temp')))
 
+app.use('/', require('./middleware/auth'))
 app.use('/api', require('./routes'))
 
 // catch 404 and forward to error handler

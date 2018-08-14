@@ -1,0 +1,19 @@
+<h1>Admin</h1>
+<form id="login-form" class="form hidden">
+    <div class="form__item">
+        <label for="password">Password</label>
+        <input type="password" id="password">
+    </div>
+    <%- include('../../components/forms/error.ejs') %>
+    <button class="form__button">Log In</button>
+</form>
+<div id="dashboard" class="hidden">
+    <input type="hidden" name="token" id="token">
+    <ul class="messages__list">
+        <% messages.forEach(message => { %>
+        <li class="message__container">
+            <%- include('../../components/message/message.ejs', {message, isAdmin: true}); %>
+        </li>
+        <% }); %>
+    </ul>
+</div>

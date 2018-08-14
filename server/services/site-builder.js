@@ -3,6 +3,8 @@ const ejs = require('ejs')
 const cheerio = require('cheerio')
 const browserify = require('browserify')
 const sass = require('node-sass')
+const { queue } = require('async')
+const EventEmitter = require('events')
 
 const {fileExists, copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
 const Message = require('../models/message')
@@ -13,29 +15,51 @@ const clientDir = path.join(projectDir, 'client')
 const src = path.join(clientDir, 'root')
 const temp = path.join(projectDir, 'temp')
 const dest = path.join(projectDir, 'build')
+let cache
 
 const layoutPath = path.join(clientDir, 'layout.ejs')
 
-let cache
+const buildEmitter = new EventEmitter()
+const buildQueue = queue(async () => {
+  await buildSite()
+}, 1)
 
 const siteBuilder = {
-  build: async () => {
-    if (!cache) {
-      cache = path.join(projectDir, 'cache')
-      await cleanDir(cache)
-      await makeDir(cache)
-    }
+  build: () => {
+    return new Promise((resolve, reject) => {
+      buildEmitter.once('complete', () => {
+        resolve()
+      })
 
-    const messages = await Message.findAll({order: [['id', 'DESC']], raw: true})
-    const data = {messages, message: messages[0], date: new Date()}
-
-    await cleanDir(temp)
-    await buildDir(src, temp, data)
-    await cleanDir(dest)
-    await copyDir(temp, dest)
-
-    console.log('Build complete')
+      // only add to the queue if there are no builds waiting
+      if (buildQueue.length() === 0) {
+        buildQueue.push({}, (err) => {
+          if (err) {
+            console.log('Error', err)
+          }
+          buildEmitter.emit('complete')
+        })
+      }
+    })
   }
+}
+
+async function buildSite () {
+  if (!cache) {
+    cache = path.join(projectDir, 'cache')
+    await cleanDir(cache)
+    await makeDir(cache)
+  }
+
+  const messages = await Message.findAll({order: [['id', 'DESC']], raw: true})
+  const data = {messages, message: messages[0], date: new Date()}
+
+  await cleanDir(temp)
+  await buildDir(src, temp, data)
+  await cleanDir(dest)
+  await copyDir(temp, dest)
+
+  console.log('Build complete')
 }
 
 async function cleanDir (dir) {
@@ -148,9 +172,13 @@ async function buildJs (src, dest) {
 function browserifyJs (src) {
   return new Promise((resolve, reject) => {
     let script = ''
+    const presets = ['babel-preset-env']
+    if (process.env.NODE_ENV !== 'development') {
+      presets.push('babel-preset-minify')
+    }
 
-    browserify(src)
-      .transform('babelify', {presets: ['babel-preset-minify', 'babel-preset-env'], global: true})
+    browserify(src, { debug: process.env.NODE_ENV === 'development' })
+      .transform('babelify', {presets, global: true})
       .bundle()
       .on('data', buf => {
         script += buf.toString()
@@ -189,6 +217,7 @@ async function buildEjs (src, dest, data) {
   console.log(`Building html ${src} => ${expandedDest}`)
 
   const route = getRelativeRoute(expandedDest)
+
   const page = await renderEjs(src, data)
 
   const $ = cheerio.load(page)

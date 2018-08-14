@@ -1,0 +1,51 @@
+.form {
+  border: 1px solid $dark;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.form__item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form__error {
+  color: red;
+  display: none;
+  margin-bottom: 0.25rem;
+
+  &.form__error--active {
+    display: block;
+  }
+}
+
+.form__button {
+  background: none;
+  border: 1px solid $dark;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+
+  &:hover,&:focus,&:active,&.form__button--active {
+    background-color: $medium;
+    cursor: pointer;
+  }
+}
+
+.delete__button {
+  background: none;
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 0;
+
+  &:hover,&:focus,&:active,&.form__button--active {
+    cursor: pointer;
+  }
+}
