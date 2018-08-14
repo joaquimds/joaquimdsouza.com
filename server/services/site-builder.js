@@ -224,8 +224,8 @@ async function buildEjs (src, dest, data) {
   const $h1 = $('h1')
   const title = $h1.text()
   $h1.remove()
-
-  const html = await renderEjs(layoutPath, {page: $.html(), title, route, ...data})
+  
+  const html = await renderEjs(layoutPath, {page: $('body').html(), title, route, ...data})
 
   await writeFile(expandedDest, html)
 }
