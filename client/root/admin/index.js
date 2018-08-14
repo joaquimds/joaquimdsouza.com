@@ -43,14 +43,15 @@ function showDashboard () {
   }
   loginForm.classList.add('hidden')
   dashboard.classList.remove('hidden')
-  document.querySelectorAll('.message').forEach(message => {
+  const messages = document.querySelectorAll('.message')
+  for (const message of messages) {
     const messageId = message.getAttribute('id').split('message-')[1]
     const button = document.getElementById(`delete-${messageId}`)
     button.addEventListener('click', async (e) => {
       e.preventDefault()
       await deleteMessage(messageId)
     })
-  })
+  }
 }
 
 function deleteMessage (messageId) {
