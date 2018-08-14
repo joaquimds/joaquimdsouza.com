@@ -44,7 +44,8 @@ function showDashboard () {
   loginForm.classList.add('hidden')
   dashboard.classList.remove('hidden')
   const messages = document.querySelectorAll('.message')
-  for (let i = 0; i < messages.length; i++) {
+  let i
+  for (i = 0; i < messages.length; i++) {
     const message = messages[i]
     const messageId = message.getAttribute('id').split('message-')[1]
     const button = document.getElementById(`delete-${messageId}`)
