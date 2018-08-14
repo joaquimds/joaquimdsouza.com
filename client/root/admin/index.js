@@ -1,7 +1,5 @@
 const {setError} = require('../../components/forms/error')
 
-let token = window.localStorage.token
-
 const loginForm = document.getElementById('login-form')
 const dashboard = document.getElementById('dashboard')
 
@@ -11,7 +9,7 @@ loginForm.addEventListener('submit', async function (e) {
   const password = document.getElementById('password').value
 
   try {
-    token = await login(password)
+    await login(password)
     showDashboard()
   } catch (e) {
     setError('login-form', 'Failed')
@@ -35,11 +33,11 @@ async function login (password) {
   if (!json || !json.token) {
     throw new Error()
   }
-  return json.token
+  window.localStorage.token = json.token
 }
 
 function showDashboard () {
-  if (!token) {
+  if (!window.localStorage.token) {
     loginForm.classList.remove('hidden')
     return
   }
@@ -65,17 +63,21 @@ function deleteMessage (messageId) {
 }
 
 async function secureRequest (path, params) {
-  params.headers['Authorization'] = `TOKEN ${token}`
+  params.headers['Authorization'] = `TOKEN ${window.localStorage.token}`
 
+  let failed = false
   try {
     const response = await window.fetch(path, params)
     if (!response.ok) {
-      token = ''
+      failed = true
     }
   } catch (e) {
-    token = ''
+    failed = true
   }
 
-  window.localStorage.token = token
+  if (failed) {
+    window.localStorage.token = ''
+  }
+
   window.location.reload(true)
 }
