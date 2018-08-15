@@ -3,7 +3,7 @@ const ejs = require('ejs')
 const cheerio = require('cheerio')
 const browserify = require('browserify')
 const sass = require('node-sass')
-const { queue } = require('async')
+const {queue} = require('async')
 const EventEmitter = require('events')
 
 const {fileExists, copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
@@ -25,7 +25,8 @@ const buildQueue = queue(async () => {
 }, 1)
 
 const siteBuilder = {
-  build: () => {
+  build: () => buildSite(),
+  ensureBuild: () => {
     return new Promise((resolve, reject) => {
       buildEmitter.once('complete', () => {
         resolve()
@@ -52,7 +53,7 @@ async function buildSite () {
   }
 
   const messages = await Message.findAll({order: [['id', 'DESC']], raw: true})
-  const data = {messages, message: messages[0], date: new Date()}
+  const data = {messages, message: messages[0], date: new Date(), version: Date.now()}
 
   await cleanDir(temp)
   await buildDir(src, temp, data)
@@ -177,7 +178,7 @@ function browserifyJs (src) {
       presets.push('babel-preset-minify')
     }
 
-    browserify(src, { debug: process.env.NODE_ENV === 'development' })
+    browserify(src, {debug: process.env.NODE_ENV === 'development'})
       .transform('babelify', {presets, global: true})
       .bundle()
       .on('data', buf => {

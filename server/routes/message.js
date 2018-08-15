@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    await siteBuilder.build()
+    await siteBuilder.ensureBuild()
   } catch (e) {
     console.log('Error', e.message)
     return res.sendStatus(500)
