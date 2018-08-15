@@ -17,12 +17,14 @@
 
 <div id="container" class="container">
 
-    <%- include('./components/accessibility/switch.ejs') %>
-    <header class="<%= (route === '/') ? 'home__header' : '' %>">
-        <h1><%= title %></h1>
+    <header>
         <% if (route !== '/') { %>
         <a href="/">Home</a>
         <% } %>
+        <div class="header__title-row">
+            <h1><%= title %></h1>
+            <%- include('./components/accessibility/switch.ejs') %>
+        </div>
     </header>
     <main>
         <%- page %>

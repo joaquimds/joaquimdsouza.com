@@ -13,13 +13,18 @@ body {
 }
 
 header {
-  align-items: center;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   margin-bottom: 1rem;
 
   a {
     text-decoration: underline;
+  }
+
+  .header__title-row {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
   }
 }
 
@@ -29,7 +34,7 @@ footer {
 
 h1 {
   font-size: 1.8rem;
-  margin: 0;
+  margin: 0.5rem 0;
 }
 
 p {

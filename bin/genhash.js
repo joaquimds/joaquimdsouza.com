@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt')
 
 const salt = bcrypt.genSaltSync(10)
 const password = process.argv[2]
