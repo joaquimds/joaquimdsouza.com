@@ -18,6 +18,7 @@ const dest = path.join(projectDir, 'build')
 let cache
 
 const layoutPath = path.join(clientDir, 'layout.ejs')
+const version = Date.now()
 
 const buildEmitter = new EventEmitter()
 const buildQueue = queue(async () => {
@@ -53,7 +54,7 @@ async function buildSite () {
   }
 
   const messages = await Message.findAll({order: [['id', 'DESC']], raw: true})
-  const data = {messages, message: messages[0], date: new Date(), version: Date.now()}
+  const data = {messages, message: messages[0], date: new Date(), version}
 
   await cleanDir(temp)
   await buildDir(src, temp, data)
