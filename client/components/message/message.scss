@@ -13,14 +13,19 @@
     background-color: $medium;
   }
 
-  em {
-    margin-bottom: 0.5rem;
-  }
-
   div {
     align-items: baseline;
     display: flex;
     justify-content: space-between;
+
+    &:first-child {
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  em {
+    line-height: 1.5rem;
   }
 
   small {
