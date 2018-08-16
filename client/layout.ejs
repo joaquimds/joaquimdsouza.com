@@ -11,9 +11,10 @@
 
     <link rel="stylesheet" href="/global.css?v=<%= version %>">
     <link rel="stylesheet" href="index.css?v=<%= version %>">
-    <script src="/loading.js?v=<%= version %>"></script>
+    <script>
+      document.documentElement.setAttribute('style', 'display:none;');
+    </script>
 </head>
-
 <body>
 
 <div id="container" class="container">
@@ -42,6 +43,8 @@
 
 <script src="/global.js?v=<%= version %>"></script>
 <script src="index.js?v=<%= version %>"></script>
-<script src="/ready.js?v=<%= version %>"></script>
+<script>
+    document.documentElement.removeAttribute('style');
+</script>
 </body>
 </html>
