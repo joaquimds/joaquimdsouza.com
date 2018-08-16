@@ -1,0 +1,23 @@
+.accessibility-control {
+  display: flex;
+  flex-direction: column;
+}
+
+.accessibility-control__buttons {
+  display: flex;
+  flex-direction: row;
+
+  :first-child {
+    margin-right: 0.25rem;
+  }
+
+  :last-child {
+    margin-left: 0.25rem;
+  }
+
+  .form__button {
+    font-size: 1rem;
+    line-height: 1rem;
+    padding: 4px 16px 2px 16px;
+  }
+}

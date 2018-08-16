@@ -31,8 +31,10 @@
   padding: 0.5rem 1rem;
 
   &:hover,&:focus,&:active,&.form__button--active {
-    background-color: $medium;
-    cursor: pointer;
+    &:not([disabled]) {
+      background-color: $medium;
+      cursor: pointer;
+    }
   }
 }
 

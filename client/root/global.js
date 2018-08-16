@@ -5,4 +5,4 @@ if (!window.localStorage) {
   window.localStorage = {}
 }
 
-require('../components/accessibility/switch')
+require('../components/accessibility/control')

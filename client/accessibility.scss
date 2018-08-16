@@ -1,0 +1,26 @@
+@import "./variables";
+
+html {
+  &.accessibility--2 {
+    font-size: 75%;
+  }
+
+  &.accessibility--2, &.accessibility--1 {
+    font-family: serif;
+  }
+
+  &.accessibility-1, &.accessibility-2, &.accessibility-3 {
+    .container {
+      background-color: $cream;
+    }
+  }
+
+  &.accessibility-2, &.accessibility-3 {
+    color: darkblue;
+    font-family: "Comic Sans MS", sans-serif;
+  }
+
+  &.accessibility-3 {
+    font-size: 125%;
+  }
+}

@@ -1,14 +1,18 @@
 @import "../../node_modules/normalize-scss/fork-versions/default/normalize";
 
 @import "../variables";
+@import "../accessibility";
+
 @import "../components/message/message";
-@import "../components/accessibility/switch.scss";
+@import "../components/accessibility/control.scss";
 @import "../components/forms/forms.scss";
 
+html {
+  font-family: sans-serif;
+}
 
 body {
   background-color: $light;
-  font-family: sans-serif;
   padding: 1rem;
 }
 
@@ -18,6 +22,7 @@ header {
   margin-bottom: 1rem;
 
   a {
+    margin-bottom: 1rem;
     text-decoration: underline;
   }
 
@@ -68,10 +73,6 @@ input,textarea {
   max-width: 650px;
   margin: 0 auto;
   padding: 1rem;
-
-  &.container--accessible {
-    background-color: $cream;
-  }
 }
 
 .hidden {
