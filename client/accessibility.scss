@@ -23,5 +23,9 @@ html {
     font-family: 'Comic Neue', sans-serif;
     font-size: 125%;
     font-weight: 700;
+
+    a {
+      text-decoration: underline;
+    }
   }
 }
