@@ -33,3 +33,16 @@
     font-weight: bold;
   }
 }
+
+.accessibility-2,.accessibility-3 {
+  .message {
+    color: $darkblue;
+  }
+}
+
+.accessibility-3 {
+  .message {
+    font-weight: 700;
+    text-decoration: none;
+  }
+}

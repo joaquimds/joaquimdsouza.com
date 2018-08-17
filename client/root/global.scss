@@ -18,19 +18,27 @@ body {
 }
 
 header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.header__nav {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
 
   a {
-    margin-bottom: 1rem;
     text-decoration: underline;
   }
 
-  .header__title-row {
+  @media(min-width: 600px) {
     align-items: center;
-    display: flex;
-    justify-content: space-between;
+    flex-direction: row;
+
+    a {
+      margin-left: 1rem;
+    }
   }
 }
 

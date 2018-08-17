@@ -20,13 +20,13 @@
 <div id="container" class="container">
 
     <header>
-        <div class="header__title-row">
+        <nav class="header__nav">
             <h1><%= title %></h1>
-            <%- include('./components/accessibility/control.ejs') %>
-        </div>
-        <% if (route !== '/') { %>
-        <a href="/">Home</a>
-        <% } %>
+            <% if (route !== '/') { %>
+            <a href="/">Home</a>
+            <% } %>
+        </nav>
+        <%- include('./components/accessibility/control.ejs') %>
     </header>
     <main>
         <%- page %>
