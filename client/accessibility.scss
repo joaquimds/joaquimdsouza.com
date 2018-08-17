@@ -16,11 +16,12 @@ html {
   }
 
   &.accessibility-2, &.accessibility-3 {
-    color: darkblue;
-    font-family: "Comic Sans MS", sans-serif;
+    color: $darkblue;
   }
 
   &.accessibility-3 {
+    font-family: 'Comic Neue', sans-serif;
     font-size: 125%;
+    font-weight: 700;
   }
 }
