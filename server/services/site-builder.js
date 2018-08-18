@@ -254,6 +254,7 @@ function buildSitemap (pageRoutes, isoDate) {
       priority
     }
   })
+  pages.sort((a, b) => a.priority > b.priority ? -1 : 1)
   return buildXml(path.join(clientDir, 'sitemap.xml'), path.join(temp, 'sitemap.xml'), { pages, isoDate })
 }
 
