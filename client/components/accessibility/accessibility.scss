@@ -1,31 +1,47 @@
 @import "../../variables";
 
-html {
-  &.inaccessibility-2 {
-    font-size: 75%;
-  }
+.inaccessibility-2 {
+  font-size: 75%;
+}
 
-  &.inaccessibility-1 {
-    font-family: serif;
-  }
+.inaccessibility-1 {
+  font-family: serif;
+}
 
-  &.accessibility-1 {
-    .container {
-      background-color: $cream;
-    }
+.accessibility-1 {
+  .container {
+    background-color: $cream;
   }
+}
 
-  &.accessibility-2 {
+.accessibility-2 {
+  color: $darkblue;
+
+  .message {
     color: $darkblue;
   }
+}
 
-  &.accessibility-3 {
-    font-family: 'Comic Neue', sans-serif;
-    font-size: 125%;
+.accessibility-3 {
+  font-family: 'Comic Neue', sans-serif;
+  font-size: 125%;
+  font-weight: 700;
+
+  a {
+    text-decoration: underline;
+  }
+
+  .message {
+    border-width: 2px;
     font-weight: 700;
+    text-decoration: none;
+  }
 
-    a {
-      text-decoration: underline;
-    }
+  .form {
+    border-width: 2px;
+  }
+
+  input,textarea,button {
+    border-width: 2px;
   }
 }
