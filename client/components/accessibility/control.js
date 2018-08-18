@@ -25,19 +25,24 @@ accessibilityDecrease.addEventListener('click', e => {
 updateAccessibility()
 
 function updateAccessibility () {
-  const accessibility = getStoredAccessibility()
-  documentEl.setAttribute('class', `accessibility-${accessibility}`)
+  const currentAccessibility = getStoredAccessibility()
 
-  if (accessibility === maxAccessibility) {
-    accessibilityIncrease.setAttribute('disabled', '')
-  } else {
-    accessibilityIncrease.removeAttribute('disabled')
+  const accessibilityClasses = []
+  for (let level = minAccessibility; level < maxAccessibility; level++) {
+    if (level < 0 && currentAccessibility < 0 && currentAccessibility <= level) {
+      accessibilityClasses.push(`inaccessibility-${level}`)
+    } else if (level > 0 && currentAccessibility > 0 && currentAccessibility >= level) {
+      accessibilityClasses.push(`accessibility-${level}`)
+    }
   }
+  documentEl.setAttribute('class', accessibilityClasses.join(' '))
 
-  if (accessibility === minAccessibility) {
+  accessibilityIncrease.removeAttribute('disabled')
+  accessibilityDecrease.removeAttribute('disabled')
+  if (currentAccessibility === maxAccessibility) {
+    accessibilityIncrease.setAttribute('disabled', '')
+  } else if (currentAccessibility === minAccessibility) {
     accessibilityDecrease.setAttribute('disabled', '')
-  } else {
-    accessibilityDecrease.removeAttribute('disabled')
   }
 }
 

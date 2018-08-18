@@ -1,21 +1,21 @@
 @import "./variables";
 
 html {
-  &.accessibility--2 {
+  &.inaccessibility-2 {
     font-size: 75%;
   }
 
-  &.accessibility--2, &.accessibility--1 {
+  &.inaccessibility-1 {
     font-family: serif;
   }
 
-  &.accessibility-1, &.accessibility-2, &.accessibility-3 {
+  &.accessibility-1 {
     .container {
       background-color: $cream;
     }
   }
 
-  &.accessibility-2, &.accessibility-3 {
+  &.accessibility-2 {
     color: $darkblue;
   }
 

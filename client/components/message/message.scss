@@ -34,14 +34,16 @@
   }
 }
 
-.accessibility-2,.accessibility-3 {
+.accessibility-2 {
   .message {
+    border: 1px solid $darkblue;
     color: $darkblue;
   }
 }
 
 .accessibility-3 {
   .message {
+    border-width: 2px;
     font-weight: 700;
     text-decoration: none;
   }
