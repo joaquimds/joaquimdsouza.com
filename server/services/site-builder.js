@@ -57,7 +57,9 @@ async function buildSite () {
   const data = {messages, message: messages[0], date: new Date(), version}
 
   await cleanDir(temp)
-  await buildDir(src, temp, data)
+  const pageRoutes = await buildDir(src, temp, data)
+  await buildSitemap(pageRoutes, data.date.toISOString())
+
   await cleanDir(dest)
   await copyDir(temp, dest)
 
@@ -116,6 +118,7 @@ async function buildDir (rootDir, destDir, data) {
   await makeDir(destDir)
 
   const files = await readDir(rootDir)
+  let pageRoutes = []
 
   for (const filename of files) {
     const srcPath = path.join(rootDir, filename)
@@ -123,14 +126,16 @@ async function buildDir (rootDir, destDir, data) {
 
     const isDirectory = await isDir(srcPath)
     if (isDirectory) {
-      await buildDir(srcPath, destPath, data)
+      const extraRoutes = await buildDir(srcPath, destPath, data)
+      pageRoutes = pageRoutes.concat(extraRoutes)
       continue
     }
 
     const extension = getFileExtension(filename)
     switch (true) {
       case filename.indexOf('_each') === 0:
-        await buildIterator(srcPath, destPath, data)
+        const extraRoutes = await buildIterator(srcPath, destPath, data)
+        pageRoutes = pageRoutes.concat(extraRoutes)
         break
       case extension === 'js':
         await buildJs(srcPath, destPath)
@@ -139,12 +144,15 @@ async function buildDir (rootDir, destDir, data) {
         await buildScss(srcPath, destPath)
         break
       case extension === 'ejs':
-        await buildEjs(srcPath, destPath, data)
+        const route = await buildEjs(srcPath, destPath, data)
+        pageRoutes.push(route)
         break
       default:
         await copyFile(srcPath, destPath)
     }
   }
+
+  return pageRoutes
 }
 
 async function buildIterator (src, dest, data) {
@@ -152,9 +160,12 @@ async function buildIterator (src, dest, data) {
 
   const parentDirName = path.basename(path.dirname(src))
   const items = data[parentDirName]
+  const pageRoutes = []
   for (const item of items) {
-    await buildEjs(src, dest, {item, ...data})
+    const route = await buildEjs(src, dest, {item, ...data})
+    pageRoutes.push(route)
   }
+  return pageRoutes
 }
 
 async function buildJs (src, dest) {
@@ -230,6 +241,26 @@ async function buildEjs (src, dest, data) {
   const html = await renderEjs(layoutPath, {page: $('body').html(), title, route, ...data})
 
   await writeFile(expandedDest, html)
+
+  return route
+}
+
+function buildSitemap (pageRoutes, isoDate) {
+  const pages = pageRoutes.map(route => {
+    const depth = route.split('/').filter(Boolean).length
+    const priority = Math.floor(100 / (depth / 4 + 1)) / 100
+    return {
+      route,
+      priority
+    }
+  })
+  return buildXml(path.join(clientDir, 'sitemap.xml'), path.join(temp, 'sitemap.xml'), { pages, isoDate })
+}
+
+async function buildXml (src, dest, data) {
+  console.log(`Building xml ${src} => ${dest}`)
+  const page = await renderEjs(src, data)
+  await writeFile(dest, page)
 }
 
 function renderEjs (src, data) {
