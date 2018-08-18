@@ -1,3 +1,7 @@
+if (!window.localStorage) {
+  window.localStorage = {}
+}
+
 const documentEl = document.documentElement
 const accessibilityIncrease = document.getElementById('accessibility-increase')
 const accessibilityDecrease = document.getElementById('accessibility-decrease')
@@ -25,25 +29,30 @@ accessibilityDecrease.addEventListener('click', e => {
 updateAccessibility()
 
 function updateAccessibility () {
-  const currentAccessibility = getStoredAccessibility()
+  let accessibilityLevel = getStoredAccessibility()
+
+  if (accessibilityLevel === maxAccessibility) {
+    accessibilityIncrease.setAttribute('disabled', '')
+  } else {
+    accessibilityIncrease.removeAttribute('disabled')
+  }
+
+  if (accessibilityLevel === minAccessibility) {
+    accessibilityDecrease.setAttribute('disabled', '')
+  } else {
+    accessibilityDecrease.removeAttribute('disabled')
+  }
 
   const accessibilityClasses = []
-  for (let level = minAccessibility; level < maxAccessibility; level++) {
-    if (level < 0 && currentAccessibility < 0 && currentAccessibility <= level) {
-      accessibilityClasses.push(`inaccessibility-${level}`)
-    } else if (level > 0 && currentAccessibility > 0 && currentAccessibility >= level) {
-      accessibilityClasses.push(`accessibility-${level}`)
-    }
+  while (accessibilityLevel > 0) {
+    accessibilityClasses.push(`accessibility-${accessibilityLevel}`)
+    accessibilityLevel--
+  }
+  while (accessibilityLevel < 0) {
+    accessibilityClasses.push(`inaccessibility-${accessibilityLevel * -1}`)
+    accessibilityLevel++
   }
   documentEl.setAttribute('class', accessibilityClasses.join(' '))
-
-  accessibilityIncrease.removeAttribute('disabled')
-  accessibilityDecrease.removeAttribute('disabled')
-  if (currentAccessibility === maxAccessibility) {
-    accessibilityIncrease.setAttribute('disabled', '')
-  } else if (currentAccessibility === minAccessibility) {
-    accessibilityDecrease.setAttribute('disabled', '')
-  }
 }
 
 function getStoredAccessibility () {

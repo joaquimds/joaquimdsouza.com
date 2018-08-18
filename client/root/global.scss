@@ -1,12 +1,12 @@
 @import "../../node_modules/normalize-scss/fork-versions/default/normalize";
 
 @import "../variables";
-@import "../font";
-@import "../accessibility";
-
+@import "../components/accessibility/accessibility";
 @import "../components/message/message";
-@import "../components/accessibility/control.scss";
-@import "../components/forms/forms.scss";
+@import "../components/accessibility/control";
+@import "../components/forms/forms";
+
+@import "./fonts/font.css";
 
 html {
   font-family: sans-serif;
