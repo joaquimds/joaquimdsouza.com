@@ -29,6 +29,7 @@ accessibilityDecrease.addEventListener('click', e => {
 updateAccessibility()
 
 function updateAccessibility () {
+  let accessibilityClasses = []
   let accessibilityLevel = getStoredAccessibility()
 
   if (accessibilityLevel === maxAccessibility) {
@@ -43,7 +44,6 @@ function updateAccessibility () {
     accessibilityDecrease.removeAttribute('disabled')
   }
 
-  const accessibilityClasses = []
   while (accessibilityLevel > 0) {
     accessibilityClasses.push(`accessibility-${accessibilityLevel}`)
     accessibilityLevel--
