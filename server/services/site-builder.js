@@ -188,7 +188,7 @@ function browserifyJs (src) {
   return new Promise((resolve, reject) => {
     let script = ''
     const presets = ['babel-preset-env']
-    if (devMode) {
+    if (!devMode) {
       presets.push('babel-preset-minify')
     }
 
