@@ -9,6 +9,8 @@ const EventEmitter = require('events')
 const {fileExists, copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
 const Message = require('../models/message')
 
+const devMode = process.env.NODE_ENV === 'development'
+
 const projectDir = path.join(__dirname, '..', '..')
 const clientDir = path.join(projectDir, 'client')
 
@@ -186,11 +188,11 @@ function browserifyJs (src) {
   return new Promise((resolve, reject) => {
     let script = ''
     const presets = ['babel-preset-env']
-    if (process.env.NODE_ENV !== 'development') {
+    if (devMode) {
       presets.push('babel-preset-minify')
     }
 
-    browserify(src, {debug: process.env.NODE_ENV === 'development'})
+    browserify(src, {debug: devMode})
       .transform('babelify', {presets, global: true})
       .bundle()
       .on('data', buf => {
@@ -215,7 +217,8 @@ async function buildScss (src, dest) {
 function compileScss (file) {
   return new Promise((resolve, reject) => {
     sass.render({
-      file
+      file,
+      outputStyle: devMode ? 'nested' : 'compressed'
     }, (err, result) => {
       if (err) {
         return reject(err)
