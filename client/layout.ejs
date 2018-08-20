@@ -9,8 +9,8 @@
     <meta name="description" content="Joaquim d'Souza's web presence">
     <meta name="author" content="Joaquim d'Souza">
 
-    <link rel="stylesheet" href="/global.css?v=<%= version %>">
-    <link rel="stylesheet" href="index.css?v=<%= version %>">
+    <link rel="stylesheet" href="/global.css">
+    <link rel="stylesheet" href="index.css">
     <script>
       document.documentElement.setAttribute('style', 'display:none;');
     </script>
@@ -34,7 +34,7 @@
     <footer>
         <small>
             <em>
-                Site built at <%= date.toLocaleTimeString('en-GB'); %> on <%= date.toLocaleDateString('en-GB'); %>.
+                Site built at <%= buildDate.toLocaleTimeString('en-GB'); %> on <%= buildDate.toLocaleDateString('en-GB'); %>.
             </em>
         </small>
     </footer>

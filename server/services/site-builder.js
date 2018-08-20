@@ -6,7 +6,7 @@ const sass = require('node-sass')
 const {queue} = require('async')
 const EventEmitter = require('events')
 
-const {fileExists, copyFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
+const {fileExists, copyFile, readFile, writeFile, isDir, readDir, makeDir, deleteFile, deleteDir} = require('./fs')
 const Message = require('../models/message')
 
 const devMode = process.env.NODE_ENV === 'development'
@@ -55,12 +55,13 @@ async function buildSite () {
     await makeDir(cache)
   }
 
+  const buildDate = new Date()
   const messages = await Message.findAll({order: [['id', 'DESC']], raw: true})
-  const data = {messages, message: messages[0], date: new Date(), version}
+  const data = {messages, message: messages[0], buildDate, version}
 
   await cleanDir(temp)
-  const pageRoutes = await buildDir(src, temp, data)
-  await buildSitemap(pageRoutes, data.date.toISOString())
+  await buildDir(src, temp, data)
+  await postBuild(temp, data)
 
   await cleanDir(dest)
   await copyDir(temp, dest)
@@ -98,7 +99,7 @@ async function cleanDir (dir) {
 async function copyDir (src, dest) {
   console.log(`Copying directory ${src} => ${dest}`)
 
-  let files = await readDir(src)
+  const files = await readDir(src)
 
   await makeDir(dest)
 
@@ -114,30 +115,29 @@ async function copyDir (src, dest) {
   }
 }
 
-async function buildDir (rootDir, destDir, data) {
-  console.log(`Building directory ${rootDir} => ${destDir}`)
+async function buildDir (srcDir, destDir, data) {
+  console.log(`Building directory ${srcDir} => ${destDir}`)
+  data.dirRoute = data.dirRoute || '/'
 
   await makeDir(destDir)
 
-  const files = await readDir(rootDir)
-  let pageRoutes = []
+  const files = await readDir(srcDir)
 
   for (const filename of files) {
-    const srcPath = path.join(rootDir, filename)
+    const srcPath = path.join(srcDir, filename)
     const destPath = getDestPath(destDir, filename)
-
     const isDirectory = await isDir(srcPath)
+
     if (isDirectory) {
-      const extraRoutes = await buildDir(srcPath, destPath, data)
-      pageRoutes = pageRoutes.concat(extraRoutes)
+      const childData = { ...data, dirRoute: data.dirRoute + filename + '/' }
+      await buildDir(srcPath, destPath, childData)
       continue
     }
 
     const extension = getFileExtension(filename)
     switch (true) {
       case filename.indexOf('_each') === 0:
-        const extraRoutes = await buildIterator(srcPath, destPath, data)
-        pageRoutes = pageRoutes.concat(extraRoutes)
+        await buildIterator(srcPath, destPath, data)
         break
       case extension === 'js':
         await buildJs(srcPath, destPath)
@@ -146,15 +146,21 @@ async function buildDir (rootDir, destDir, data) {
         await buildScss(srcPath, destPath)
         break
       case extension === 'ejs':
-        const route = await buildEjs(srcPath, destPath, data)
-        pageRoutes.push(route)
+        await buildEjs(srcPath, destPath, data)
         break
       default:
         await copyFile(srcPath, destPath)
     }
   }
+}
 
-  return pageRoutes
+async function postBuild (siteDir, data) {
+  console.log(`Processing site ${siteDir}`)
+
+  const pages = await processPages(siteDir)
+  const pageRoutes = pages.map(page => getRelativeRoute(siteDir, page))
+
+  await buildSitemap(path.join(siteDir, 'sitemap.xml'), pageRoutes, data.buildDate)
 }
 
 async function buildIterator (src, dest, data) {
@@ -162,12 +168,9 @@ async function buildIterator (src, dest, data) {
 
   const parentDirName = path.basename(path.dirname(src))
   const items = data[parentDirName]
-  const pageRoutes = []
   for (const item of items) {
-    const route = await buildEjs(src, dest, {item, ...data})
-    pageRoutes.push(route)
+    await buildEjs(src, dest, {item, ...data})
   }
-  return pageRoutes
 }
 
 async function buildJs (src, dest) {
@@ -232,7 +235,8 @@ async function buildEjs (src, dest, data) {
   const expandedDest = replaceVariablesInFilename(dest, data)
   console.log(`Building html ${src} => ${expandedDest}`)
 
-  const route = getRelativeRoute(expandedDest)
+  const filename = path.basename(expandedDest)
+  const route = data.dirRoute + (filename === 'index.html' ? '' : filename)
 
   const page = await renderEjs(src, data)
 
@@ -244,11 +248,10 @@ async function buildEjs (src, dest, data) {
   const html = await renderEjs(layoutPath, {page: $('body').html(), title, route, ...data})
 
   await writeFile(expandedDest, html)
-
-  return route
 }
 
-function buildSitemap (pageRoutes, isoDate) {
+function buildSitemap (dest, pageRoutes, date) {
+  const isoDate = date.toISOString()
   const pages = pageRoutes.map(route => {
     const depth = route.split('/').filter(Boolean).length
     const priority = Math.floor(100 / (depth / 4 + 1)) / 100
@@ -258,13 +261,17 @@ function buildSitemap (pageRoutes, isoDate) {
     }
   })
   pages.sort((a, b) => a.priority > b.priority ? -1 : 1)
-  return buildXml(path.join(clientDir, 'sitemap.xml'), path.join(temp, 'sitemap.xml'), { pages, isoDate })
-}
-
-async function buildXml (src, dest, data) {
-  console.log(`Building xml ${src} => ${dest}`)
-  const page = await renderEjs(src, data)
-  await writeFile(dest, page)
+  const xml = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">${pages.map(page => `
+    <url>
+        <loc>https://joaquimdsouza.com${page.route}</loc>
+        <lastmod>${isoDate}</lastmod>
+        <priority>${page.priority}</priority>
+    </url>`).join('')}
+</urlset>`
+  return writeFile(dest, xml)
 }
 
 function renderEjs (src, data) {
@@ -325,14 +332,57 @@ function replaceVariablesInFilename (filename, data) {
   return filename
 }
 
-function getRelativeRoute (destPath) {
-  const relativePath = destPath.split(temp)[1]
+async function processPages (siteDir, currentDir) {
+  currentDir = currentDir || siteDir
+
+  let pages = []
+  const files = await readDir(currentDir)
+
+  for (const file of files) {
+    const srcPath = path.join(currentDir, file)
+    const extension = getFileExtension(file)
+
+    if (extension === 'html') {
+      if (!devMode) {
+        await inlineCss(siteDir, srcPath)
+      }
+      pages.push(srcPath)
+      continue
+    }
+
+    const isDirectory = await isDir(srcPath)
+    if (isDirectory) {
+      const extraPages = await processPages(siteDir, srcPath)
+      pages = pages.concat(extraPages)
+    }
+  }
+
+  return pages
+}
+
+async function inlineCss (root, src) {
+  const html = await readFile(src)
+  const $ = cheerio.load(html)
+  const links = $('link').toArray()
+  for (const link of links) {
+    const $link = $(link)
+    const href = $link.attr('href')
+    const parent = href.indexOf('/') === 0 ? root : path.dirname(src)
+    const assetPath = path.join(parent, href)
+    const css = await readFile(assetPath)
+    $link.after(`<style>${css.trim()}</style>`)
+    $link.remove()
+    await writeFile(src, $.html())
+  }
+}
+
+function getRelativeRoute (root, path) {
+  const relativePath = path.split(root)[1]
   const simplePath = relativePath.split('index.html')[0]
 
   if (process.platform === 'win32') {
     return simplePath.replace(/\\/g, '/')
   }
-
   return simplePath
 }
 
