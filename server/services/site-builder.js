@@ -367,8 +367,8 @@ async function inlineCss (root, src) {
   for (const link of links) {
     const $link = $(link)
     const href = $link.attr('href')
-    const parent = href.indexOf('/') === 0 ? root : path.dirname(src)
-    const assetPath = path.join(parent, href)
+    const parentDir = href.indexOf('/') === 0 ? root : path.dirname(src)
+    const assetPath = path.join(parentDir, href)
     const css = await readFile(assetPath)
     $link.after(`<style>${css.trim()}</style>`)
     $link.remove()
