@@ -96,25 +96,6 @@ async function cleanDir (dir) {
   console.log('Cleaned directory', dir)
 }
 
-async function copyDir (src, dest) {
-  console.log(`Copying directory ${src} => ${dest}`)
-
-  const files = await readDir(src)
-
-  await makeDir(dest)
-
-  for (const file of files) {
-    const srcPath = path.join(src, file)
-    const destPath = path.join(dest, file)
-    const isDirectory = await isDir(srcPath)
-    if (isDirectory) {
-      await copyDir(srcPath, destPath)
-      continue
-    }
-    await copyFile(srcPath, destPath)
-  }
-}
-
 async function buildDir (srcDir, destDir, data) {
   console.log(`Building directory ${srcDir} => ${destDir}`)
   data.dirRoute = data.dirRoute || '/'
@@ -161,6 +142,25 @@ async function postBuild (siteDir, data) {
   const pageRoutes = pages.map(page => getRelativeRoute(siteDir, page))
 
   await buildSitemap(path.join(siteDir, 'sitemap.xml'), pageRoutes, data.buildDate)
+}
+
+async function copyDir (src, dest) {
+  console.log(`Copying directory ${src} => ${dest}`)
+
+  const files = await readDir(src)
+
+  await makeDir(dest)
+
+  for (const file of files) {
+    const srcPath = path.join(src, file)
+    const destPath = path.join(dest, file)
+    const isDirectory = await isDir(srcPath)
+    if (isDirectory) {
+      await copyDir(srcPath, destPath)
+      continue
+    }
+    await copyFile(srcPath, destPath)
+  }
 }
 
 async function buildIterator (src, dest, data) {
@@ -250,6 +250,80 @@ async function buildEjs (src, dest, data) {
   await writeFile(expandedDest, html)
 }
 
+function renderEjs (src, data) {
+  return new Promise((resolve, reject) => {
+    ejs.renderFile(src, data, {}, (err, str) => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(str)
+    })
+  })
+}
+
+async function processPages (siteDir, currentDir) {
+  currentDir = currentDir || siteDir
+
+  let pages = []
+  const files = await readDir(currentDir)
+
+  for (const file of files) {
+    const srcPath = path.join(currentDir, file)
+    const extension = getFileExtension(file)
+
+    if (extension === 'html') {
+      if (!devMode) {
+        await processPage(siteDir, srcPath)
+      }
+      pages.push(srcPath)
+      continue
+    }
+
+    const isDirectory = await isDir(srcPath)
+    if (isDirectory) {
+      const extraPages = await processPages(siteDir, srcPath)
+      pages = pages.concat(extraPages)
+    }
+  }
+
+  return pages
+}
+
+async function processPage (siteDir, pagePath) {
+  let html = await readFile(pagePath)
+
+  html = await replaceElements(html, 'link', async $link => {
+    const content = await loadResource(siteDir, pagePath, $link.attr('href'))
+    return `<style>${content.trim()}</style>`
+  })
+
+  html = await replaceElements(html, 'img', async $img => {
+    const content = await loadResource(siteDir, pagePath, $img.attr('src'), 'base64')
+    $img.attr('src', `data:image/jpeg;base64,${content}`)
+    return $img.clone()
+  })
+
+  await writeFile(pagePath, html)
+}
+
+async function replaceElements (html, tag, replacementFn) {
+  const $ = cheerio.load(html)
+  const elements = $(tag).toArray()
+  for (const element of elements) {
+    const $el = $(element)
+    const replacement = await replacementFn($el)
+    $el.after(replacement)
+    $el.remove()
+  }
+  return $.html()
+}
+
+function loadResource (sitePath, pagePath, resourceUrl, encoding = 'utf8') {
+  const parentDir = resourceUrl.indexOf('/') === 0 ? sitePath : path.dirname(pagePath)
+  const assetPath = path.join(parentDir, resourceUrl)
+  return readFile(assetPath, encoding)
+}
+
 function buildSitemap (dest, pageRoutes, date) {
   const isoDate = date.toISOString()
   const pages = pageRoutes.map(route => {
@@ -272,17 +346,6 @@ function buildSitemap (dest, pageRoutes, date) {
     </url>`).join('')}
 </urlset>`
   return writeFile(dest, xml)
-}
-
-function renderEjs (src, data) {
-  return new Promise((resolve, reject) => {
-    ejs.renderFile(src, data, {}, (err, str) => {
-      if (err) {
-        return reject(err)
-      }
-      resolve(str)
-    })
-  })
 }
 
 function getDestPath (destDir, filename) {
@@ -330,69 +393,6 @@ function replaceVariablesInFilename (filename, data) {
   }
 
   return filename
-}
-
-async function processPages (siteDir, currentDir) {
-  currentDir = currentDir || siteDir
-
-  let pages = []
-  const files = await readDir(currentDir)
-
-  for (const file of files) {
-    const srcPath = path.join(currentDir, file)
-    const extension = getFileExtension(file)
-
-    if (extension === 'html') {
-      if (!devMode) {
-        await processPage(siteDir, srcPath)
-      }
-      pages.push(srcPath)
-      continue
-    }
-
-    const isDirectory = await isDir(srcPath)
-    if (isDirectory) {
-      const extraPages = await processPages(siteDir, srcPath)
-      pages = pages.concat(extraPages)
-    }
-  }
-
-  return pages
-}
-
-async function processPage (siteDir, pagePath) {
-  let html = await readFile(pagePath)
-
-  html = await replaceElements(html, 'link', async $link => {
-    const content = await loadResource(siteDir,  pagePath, $link.attr('href'))
-    return `<style>${content.trim()}</style>`
-  })
-
-  html = await replaceElements(html, 'img', async $img => {
-    const content = await loadResource(siteDir,  pagePath, $img.attr('src'), 'base64')
-    $img.attr('src', `data:image/jpeg;base64,${content}`)
-    return $img.clone()
-  })
-
-  await writeFile(pagePath, html)
-}
-
-async function replaceElements (html, tag, replacementFn) {
-  const $ = cheerio.load(html)
-  const elements = $(tag).toArray()
-  for (const element of elements) {
-    const $el = $(element)
-    const replacement = await replacementFn($el)
-    $el.after(replacement)
-    $el.remove()
-  }
-  return $.html()
-}
-
-function loadResource (sitePath, pagePath, resourceUrl, encoding = 'utf8') {
-  const parentDir = resourceUrl.indexOf('/') === 0 ? sitePath : path.dirname(pagePath)
-  const assetPath = path.join(parentDir, resourceUrl)
-  return readFile(assetPath, encoding)
 }
 
 function getRelativeRoute (root, path) {
