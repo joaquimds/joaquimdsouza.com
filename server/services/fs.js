@@ -24,9 +24,9 @@ module.exports = {
     })
   },
 
-  readFile: (src) => {
+  readFile: (src, encoding = 'utf8') => {
     return new Promise((resolve, reject) => {
-      fs.readFile(src, 'utf8', (err, str) => {
+      fs.readFile(src, encoding, (err, str) => {
         if (err) {
           return reject(err)
         }

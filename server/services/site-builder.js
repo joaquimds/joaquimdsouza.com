@@ -344,7 +344,7 @@ async function processPages (siteDir, currentDir) {
 
     if (extension === 'html') {
       if (!devMode) {
-        await inlineCss(siteDir, srcPath)
+        await processPage(siteDir, srcPath)
       }
       pages.push(srcPath)
       continue
@@ -360,20 +360,39 @@ async function processPages (siteDir, currentDir) {
   return pages
 }
 
-async function inlineCss (root, src) {
-  const html = await readFile(src)
+async function processPage (siteDir, pagePath) {
+  let html = await readFile(pagePath)
+
+  html = await replaceElements(html, 'link', async $link => {
+    const content = await loadResource(siteDir,  pagePath, $link.attr('href'))
+    return `<style>${content.trim()}</style>`
+  })
+
+  html = await replaceElements(html, 'img', async $img => {
+    const content = await loadResource(siteDir,  pagePath, $img.attr('src'), 'base64')
+    $img.attr('src', `data:image/jpeg;base64,${content}`)
+    return $img.clone()
+  })
+
+  await writeFile(pagePath, html)
+}
+
+async function replaceElements (html, tag, replacementFn) {
   const $ = cheerio.load(html)
-  const links = $('link').toArray()
-  for (const link of links) {
-    const $link = $(link)
-    const href = $link.attr('href')
-    const parentDir = href.indexOf('/') === 0 ? root : path.dirname(src)
-    const assetPath = path.join(parentDir, href)
-    const css = await readFile(assetPath)
-    $link.after(`<style>${css.trim()}</style>`)
-    $link.remove()
-    await writeFile(src, $.html())
+  const elements = $(tag).toArray()
+  for (const element of elements) {
+    const $el = $(element)
+    const replacement = await replacementFn($el)
+    $el.after(replacement)
+    $el.remove()
   }
+  return $.html()
+}
+
+function loadResource (sitePath, pagePath, resourceUrl, encoding = 'utf8') {
+  const parentDir = resourceUrl.indexOf('/') === 0 ? sitePath : path.dirname(pagePath)
+  const assetPath = path.join(parentDir, resourceUrl)
+  return readFile(assetPath, encoding)
 }
 
 function getRelativeRoute (root, path) {
