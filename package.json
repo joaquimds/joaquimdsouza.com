@@ -2,8 +2,8 @@
   "name": "joaquimdsouza.com",
   "version": "0.0.1",
   "scripts": {
-    "start": "node --icu-data-dir=node_modules\\full-icu ./bin/www",
-    "dev": "nodemon --icu-data-dir=node_modules\\full-icu --watch client --watch server --ext js,scss,ejs ./bin/www",
+    "start": "node --icu-data-dir=node_modules/full-icu ./bin/www",
+    "dev": "nodemon --icu-data-dir=node_modules/full-icu --watch client --watch server --ext js,scss,ejs ./bin/www",
     "lint": "standard \"**/*.js\" --fix"
   },
   "dependencies": {
@@ -13,14 +13,14 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-minify": "^0.4.3",
     "babelify": "^8.0.0",
-    "browserify": "^16.2.2",
+    "browserify": "^16.2.3",
     "cheerio": "^1.0.0-rc.2",
     "dotenv": "^6.0.0",
     "ejs": "^2.6.1",
     "express": "~4.16.0",
     "full-icu": "^1.2.1",
     "http-errors": "~1.6.2",
-    "node-sass": "^4.9.2",
+    "node-sass": "^4.12.0",
     "normalize-scss": "^7.0.1",
     "pg": "^7.4.3",
     "sequelize": "^4.38.0",
